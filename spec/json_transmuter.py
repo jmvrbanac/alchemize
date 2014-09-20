@@ -23,7 +23,7 @@ class TestListChildMapping(JsonMappedModel):
 
 class TransmutingJsonContent(Spec):
 
-    class ConvertJsonAttributeTypes(DataSpec):
+    class TransmuteFromJsonAttributeTypes(DataSpec):
         DATASET = {
             'str': {
                 'attr_type': str,
@@ -54,7 +54,7 @@ class TransmutingJsonContent(Spec):
             result = JsonTransmuter.transmute_from(data, FlexMapping)
             expect(result.test).to.equal(attr_result)
 
-    def transmute_to_with_child_mapping(self):
+    def transmute_from_with_child_mapping(self):
         data = '{"other": "sample", "child": {"test": "sample stuff"}}'
 
         result = JsonTransmuter.transmute_from(data, TestChildMapping)
@@ -62,7 +62,7 @@ class TransmutingJsonContent(Spec):
         require(result.child).not_to.be_none()
         expect(result.child.test).to.equal('sample stuff')
 
-    def transmute_to_with_list_of_child_mappings(self):
+    def transmute_from_with_list_of_child_mappings(self):
         data = '{"children": [{"test": "sample1"}, {"test": "sample2"}]}'
 
         result = JsonTransmuter.transmute_from(data, TestListChildMapping)
