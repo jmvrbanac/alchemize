@@ -13,13 +13,120 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import json
+import types
 from abc import ABCMeta, abstractmethod
 
+from alchemize.mapping import JsonMappedModel
 
-class AbstractSerializer(object):
+
+NON_CONVERSION_TYPES = [
+    types.BooleanType,
+    types.DictType,
+    types.DictionaryType,
+    types.FloatType,
+    types.IntType,
+    types.ListType,
+    types.LongType,
+    types.NoneType,
+    types.StringType,
+    types.UnicodeType
+]
+
+
+class UnsupportedMappedModelError(Exception):
+    pass
+
+
+class AbstractBaseTransmuter(object):
     __metaclass__ = ABCMeta
+    __supported_base_mappings__ = []
 
+    @classmethod
+    def _check_supported_mapping(cls, mapped_model, ignore_failure=False):
+        if not isinstance(mapped_model, type):
+            return False
+
+        results = [issubclass(mapped_model, map_type)
+                   for map_type in cls.__supported_base_mappings__]
+
+        if not ignore_failure and False in results:
+            raise UnsupportedMappedModelError()
+
+        return not False in results
+
+    @classmethod
     @abstractmethod
-    def _transmute(self, data, result_type):
-        self._input = data
-        self._result_type = result_type
+    def transmute_to(cls, mapped_model):
+        cls._check_supported_mapping(mapped_model)
+
+    @classmethod
+    @abstractmethod
+    def transmute_from(cls, data, mapped_model):
+        cls._check_supported_mapping(mapped_model)
+
+
+class JsonTransmuter(AbstractBaseTransmuter):
+    __supported_base_mappings__ = [JsonMappedModel]
+
+    @classmethod
+    def is_list_of_mapping_types(cls, attr_type):
+        if isinstance(attr_type, types.ListType) and len(attr_type) == 1:
+            if cls._check_supported_mapping(attr_type[0]):
+                return True
+        return False
+
+    @classmethod
+    def transmute_to(cls, mapped_model):
+        """Converts a model based off of a JsonMappedModel into JSON.
+
+        :param mapped_model: An instance of a subclass of JsonMappedModel.
+        :returns: A string containing the JSON form of your mapped model.
+        """
+        super(JsonTransmuter, cls).transmute_to(mapped_model)
+        result = {}
+
+        #for key, val in mapped_model.__mapping__.items():
+
+
+
+    @classmethod
+    def transmute_from(cls, data, mapped_model):
+        """Converts a JSON string or dict into a corresponding Mapping Object.
+
+        :param data: JSON data in string or dictionary form.
+        :param mapped_model: A type that extends the JsonMappedModel base.
+        :returns: An instance of your mapped model type.
+        """
+        super(JsonTransmuter, cls).transmute_from(data, mapped_model)
+
+        json_dict = data
+        if isinstance(data, types.StringType):
+            json_dict = json.loads(data)
+
+        mapped_obj = mapped_model()
+        for key, val in json_dict.items():
+            map_list = mapped_model.__mapping__.get(key)
+            if map_list and len(map_list) == 2:
+                attr_name, attr_type = map_list[0], map_list[1]
+
+                attr_value = None
+
+                # Convert a single mapped object
+                if cls._check_supported_mapping(attr_type, True):
+                    attr_value = cls.transmute_from(val, attr_type)
+
+                # Converts lists of mapped objects
+                elif (cls.is_list_of_mapping_types(attr_type)
+                      and isinstance(val, types.ListType)):
+                    attr_value = [cls.transmute_from(child, attr_type[0])
+                                  for child in val]
+
+                # Converts all other objects (if possible)
+                elif attr_type in NON_CONVERSION_TYPES:
+                    attr_value = val
+
+                # Add mapped value to the new mapped_obj is possible
+                setattr(mapped_obj, attr_name, attr_value)
+
+        return mapped_obj
