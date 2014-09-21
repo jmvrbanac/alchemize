@@ -20,28 +20,30 @@ class TestListChildMapping(JsonMappedModel):
         'children': ['children', [TestMappedModel]]
     }
 
+TRANSMUTE_COMMON_TYPES_DATASET = {
+    'str': {
+        'attr_type': str,
+        'attr_data': '"data"', 'attr_result': 'data'
+    },
+    'int': {
+        'attr_type': int,
+        'attr_data': '1', 'attr_result': 1
+    },
+    'list': {
+        'attr_type': list,
+        'attr_data': '[1, 2]', 'attr_result': [1, 2]
+    },
+    'dict': {
+        'attr_type': dict,
+        'attr_data': '{"a": "b"}', 'attr_result': {'a': 'b'}
+    }
+}
+
 
 class TransmutingJsonContent(Spec):
 
     class TransmuteFromJsonAttributeTypes(DataSpec):
-        DATASET = {
-            'str': {
-                'attr_type': str,
-                'attr_data': '"data"', 'attr_result': 'data'
-            },
-            'int': {
-                'attr_type': int,
-                'attr_data': '1', 'attr_result': 1
-            },
-            'list': {
-                'attr_type': list,
-                'attr_data': '[1,2]', 'attr_result': [1, 2]
-            },
-            'dict': {
-                'attr_type': dict,
-                'attr_data': '{"a": "b"}', 'attr_result': {'a': 'b'}
-            }
-        }
+        DATASET = TRANSMUTE_COMMON_TYPES_DATASET
 
         def transmute_attribute_with_type(self, attr_type, attr_data,
                                           attr_result):
@@ -53,6 +55,23 @@ class TransmutingJsonContent(Spec):
             data = '{{"test": {0} }}'.format(attr_data)
             result = JsonTransmuter.transmute_from(data, FlexMapping)
             expect(result.test).to.equal(attr_result)
+
+    class TransmuteToJsonAttributeTypes(DataSpec):
+        DATASET = TRANSMUTE_COMMON_TYPES_DATASET
+
+        def transmute_attribute_with_type(self, attr_type, attr_data,
+                                          attr_result):
+            class FlexMapping(JsonMappedModel):
+                __mapping__ = {
+                    'test': ['test', attr_type]
+                }
+
+            mapping = FlexMapping()
+            setattr(mapping, 'test', attr_result)
+
+            result = JsonTransmuter.transmute_to(mapping)
+            expected_result = '{{"test": {0}}}'.format(attr_data)
+            expect(result).to.equal(expected_result)
 
     def transmute_from_with_child_mapping(self):
         data = '{"other": "sample", "child": {"test": "sample stuff"}}'
@@ -71,3 +90,25 @@ class TransmutingJsonContent(Spec):
         expect(len(result.children)).to.equal(2)
         expect(result.children[0].test).to.equal('sample1')
         expect(result.children[1].test).to.equal('sample2')
+
+    def transmute_to_with_child_mapping(self):
+        child_mapping = TestMappedModel()
+        mapping = TestChildMapping()
+        setattr(child_mapping, 'test', 'sample stuff')
+        setattr(mapping, 'child', child_mapping)
+
+        expected_result = '{"child": {"test": "sample stuff"}}'
+
+        result = JsonTransmuter.transmute_to(mapping)
+        expect(result).to.equal(expected_result)
+
+    def transmute_to_with_list_of_child_mappings(self):
+        child_mapping = TestMappedModel()
+        mapping = TestListChildMapping()
+        setattr(child_mapping, 'test', 'sample stuff')
+        setattr(mapping, 'children', [child_mapping])
+
+        expected_result = '{"children": [{"test": "sample stuff"}]}'
+
+        result = JsonTransmuter.transmute_to(mapping)
+        expect(result).to.equal(expected_result)

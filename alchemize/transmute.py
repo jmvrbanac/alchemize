@@ -77,18 +77,40 @@ class JsonTransmuter(AbstractBaseTransmuter):
         return False
 
     @classmethod
-    def transmute_to(cls, mapped_model):
+    def transmute_to(cls, mapped_model, to_string=True):
         """Converts a model based off of a JsonMappedModel into JSON.
 
         :param mapped_model: An instance of a subclass of JsonMappedModel.
-        :returns: A string containing the JSON form of your mapped model.
+        :param to_string: Boolean value to disable the return of a string
+            and return a dictionary instead.
+        :returns: A string or dictionary containing the JSON form of your
+            mapped model.
         """
         super(JsonTransmuter, cls).transmute_to(mapped_model)
         result = {}
 
-        #for key, val in mapped_model.__mapping__.items():
+        for json_key, map_list in mapped_model.__mapping__.items():
+            attr_name, attr_type = map_list[0], map_list[1]
 
+            if hasattr(mapped_model, attr_name):
+                current_value = getattr(mapped_model, attr_name)
+                # Convert a single mapped object
+                if cls._check_supported_mapping(attr_type, True):
+                    attr_value = cls.transmute_to(current_value, False)
 
+                # Converts lists of mapped objects
+                elif (cls.is_list_of_mapping_types(attr_type)
+                      and isinstance(current_value, types.ListType)):
+                    attr_value = [cls.transmute_to(child, False)
+                                  for child in current_value]
+
+                # Converts all other objects (if possible)
+                elif attr_type in NON_CONVERSION_TYPES:
+                    attr_value = current_value
+
+                result[json_key] = attr_value
+
+        return json.dumps(result) if to_string else result
 
     @classmethod
     def transmute_from(cls, data, mapped_model):
