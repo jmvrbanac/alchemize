@@ -53,7 +53,7 @@ class AbstractBaseTransmuter(object):
         if not ignore_failure and False in results:
             raise UnsupportedMappedModelError()
 
-        return not False in results
+        return False not in results
 
     @classmethod
     @abstractmethod
