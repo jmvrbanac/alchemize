@@ -107,7 +107,7 @@ class JsonTransmuter(AbstractBaseTransmuter):
         super(JsonTransmuter, cls).transmute_to(mapped_model)
         result = {}
 
-        for json_key, map_list in mapped_model.__mapping__.items():
+        for json_key, map_list in mapped_model.__get_full_mapping__().items():
             attr_name, attr_type = map_list[0], map_list[1]
 
             if hasattr(mapped_model, attr_name):
@@ -146,7 +146,7 @@ class JsonTransmuter(AbstractBaseTransmuter):
 
         mapped_obj = mapped_model_type()
         for key, val in json_dict.items():
-            map_list = mapped_model_type.__mapping__.get(key)
+            map_list = mapped_model_type.__get_full_mapping__().get(key)
             if map_list and len(map_list) == 2:
                 attr_name, attr_type = map_list[0], map_list[1]
 

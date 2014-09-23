@@ -18,6 +18,20 @@ limitations under the License.
 class BaseMappedModel(object):
     __mapping__ = {}
 
+    @classmethod
+    def __get_full_mapping__(cls):
+        full_mapping = {}
+        sub_classes = [sub_class for sub_class in cls.mro()
+                       if issubclass(sub_class, BaseMappedModel)]
+
+        # Invert so we are updating layering mappings from the bottom up
+        sub_classes.reverse()
+
+        for sub_class in sub_classes:
+            full_mapping.update(sub_class.__mapping__)
+
+        return full_mapping
+
 
 class JsonMappedModel(BaseMappedModel):
     pass

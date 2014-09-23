@@ -20,6 +20,12 @@ class TestListChildMapping(JsonMappedModel):
         'children': ['children', [TestMappedModel]]
     }
 
+
+class TestExtendedModel(TestMappedModel):
+    __mapping__ = {
+        'second': ['second', str]
+    }
+
 TRANSMUTE_COMMON_TYPES_DATASET = {
     'str': {
         'attr_type': str,
@@ -91,6 +97,14 @@ class TransmutingJsonContent(Spec):
         expect(result.children[0].test).to.equal('sample1')
         expect(result.children[1].test).to.equal('sample2')
 
+    def transmute_from_with_inherited_mapping(self):
+        data = '{"test": "sample", "second": "other"}'
+
+        result = JsonTransmuter.transmute_from(data, TestExtendedModel)
+
+        expect(result.test).to.equal('sample')
+        expect(result.second).to.equal('other')
+
     def transmute_to_with_child_mapping(self):
         child_mapping = TestMappedModel()
         mapping = TestChildMapping()
@@ -111,4 +125,14 @@ class TransmutingJsonContent(Spec):
         expected_result = '{"children": [{"test": "sample stuff"}]}'
 
         result = JsonTransmuter.transmute_to(mapping)
+        expect(result).to.equal(expected_result)
+
+    def transmute_to_with_inherited_mapping(self):
+        model = TestExtendedModel()
+        model.test = 'sample'
+        model.second = 'other'
+
+        expected_result = '{"test": "sample", "second": "other"}'
+
+        result = JsonTransmuter.transmute_to(model)
         expect(result).to.equal(expected_result)
