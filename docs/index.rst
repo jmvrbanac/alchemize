@@ -3,8 +3,8 @@ Welcome to Alchemize's documentation!
 
 Alchemize is designed to be a simple serialization and deserialization
 library. The primary use-case for Alchemize is to allow for users to
-build REST clients using simple model mappings to construct models and
-generate requests.
+quickly build REST clients using simple model mappings to transform
+data from Python objects to a serializable form and vice-versa.
 
 .. toctree::
    :maxdepth: 2
