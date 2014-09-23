@@ -73,7 +73,7 @@ class TransmutingJsonContent(Spec):
                 }
 
             mapping = FlexMapping()
-            setattr(mapping, 'test', attr_result)
+            mapping.test = attr_result
 
             result = JsonTransmuter.transmute_to(mapping)
             expected_result = '{{"test": {0}}}'.format(attr_data)
@@ -107,9 +107,10 @@ class TransmutingJsonContent(Spec):
 
     def transmute_to_with_child_mapping(self):
         child_mapping = TestMappedModel()
+        child_mapping.test = 'sample stuff'
+
         mapping = TestChildMapping()
-        setattr(child_mapping, 'test', 'sample stuff')
-        setattr(mapping, 'child', child_mapping)
+        mapping.child = child_mapping
 
         expected_result = '{"child": {"test": "sample stuff"}}'
 
@@ -118,9 +119,10 @@ class TransmutingJsonContent(Spec):
 
     def transmute_to_with_list_of_child_mappings(self):
         child_mapping = TestMappedModel()
+        child_mapping.test = 'sample stuff'
+
         mapping = TestListChildMapping()
-        setattr(child_mapping, 'test', 'sample stuff')
-        setattr(mapping, 'children', [child_mapping])
+        mapping.children = [child_mapping]
 
         expected_result = '{"children": [{"test": "sample stuff"}]}'
 
