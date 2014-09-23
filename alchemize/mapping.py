@@ -21,9 +21,3 @@ class BaseMappedModel(object):
 
 class JsonMappedModel(BaseMappedModel):
     pass
-
-
-class SampleMappedModel(JsonMappedModel):
-    __mapping__ = {
-        'json_attr_name': ['mapping_attr_name', str]
-    }
