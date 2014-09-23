@@ -35,15 +35,22 @@ NON_CONVERSION_TYPES = [
 
 
 class UnsupportedMappedModelError(Exception):
+    """Exception that is raised when attempting to transmute a model that
+    is not supported by the specified transmuter.
+    """
     pass
 
 
 class AbstractBaseTransmuter(object):
+    """The abtract base class from which all Transmuters are built."""
     __metaclass__ = ABCMeta
     __supported_base_mappings__ = []
 
     @classmethod
     def _check_supported_mapping(cls, mapped_model, ignore_failure=False):
+        """Checks the passed mapped model type if it's compatible with the
+            specified support base mappings.
+        """
         if not isinstance(mapped_model, type):
             return False
 
@@ -58,12 +65,23 @@ class AbstractBaseTransmuter(object):
     @classmethod
     @abstractmethod
     def transmute_to(cls, mapped_model):
+        """Generic Abstract Base Method to convert to serialized form
+
+        :param mapped_model: An instance of a class based from BaseMappedModel.
+        :returns: A serialized or serializable form of your mapped model.
+        """
         cls._check_supported_mapping(mapped_model)
 
     @classmethod
     @abstractmethod
-    def transmute_from(cls, data, mapped_model):
-        cls._check_supported_mapping(mapped_model)
+    def transmute_from(cls, data, mapped_model_type):
+        """Generic Abstract Base Method to deserialize into a Python object
+
+        :param mapped_model_type: A type that extends BaseMappedModel.
+        :returns: The an instance of the passed in mapped model type
+            containing the deserialized data.
+        """
+        cls._check_supported_mapping(mapped_model_type)
 
 
 class JsonTransmuter(AbstractBaseTransmuter):
@@ -113,22 +131,22 @@ class JsonTransmuter(AbstractBaseTransmuter):
         return json.dumps(result) if to_string else result
 
     @classmethod
-    def transmute_from(cls, data, mapped_model):
+    def transmute_from(cls, data, mapped_model_type):
         """Converts a JSON string or dict into a corresponding Mapping Object.
 
         :param data: JSON data in string or dictionary form.
-        :param mapped_model: A type that extends the JsonMappedModel base.
+        :param mapped_model_type: A type that extends the JsonMappedModel base.
         :returns: An instance of your mapped model type.
         """
-        super(JsonTransmuter, cls).transmute_from(data, mapped_model)
+        super(JsonTransmuter, cls).transmute_from(data, mapped_model_type)
 
         json_dict = data
         if isinstance(data, types.StringType):
             json_dict = json.loads(data)
 
-        mapped_obj = mapped_model()
+        mapped_obj = mapped_model_type()
         for key, val in json_dict.items():
-            map_list = mapped_model.__mapping__.get(key)
+            map_list = mapped_model_type.__mapping__.get(key)
             if map_list and len(map_list) == 2:
                 attr_name, attr_type = map_list[0], map_list[1]
 
