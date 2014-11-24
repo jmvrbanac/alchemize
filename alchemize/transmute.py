@@ -83,16 +83,16 @@ class AbstractBaseTransmuter(object):
         """
         cls._check_supported_mapping(mapped_model_type)
 
-
-class JsonTransmuter(AbstractBaseTransmuter):
-    __supported_base_mappings__ = [JsonMappedModel]
-
     @classmethod
     def is_list_of_mapping_types(cls, attr_type):
         if isinstance(attr_type, types.ListType) and len(attr_type) == 1:
             if cls._check_supported_mapping(attr_type[0]):
                 return True
         return False
+
+
+class JsonTransmuter(AbstractBaseTransmuter):
+    __supported_base_mappings__ = [JsonMappedModel]
 
     @classmethod
     def transmute_to(cls, mapped_model, to_string=True):
