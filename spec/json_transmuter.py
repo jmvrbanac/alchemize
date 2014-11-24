@@ -1,3 +1,5 @@
+import json
+
 from specter import Spec, DataSpec, expect, require
 from alchemize.transmute import JsonTransmuter
 from alchemize.mapping import JsonMappedModel
@@ -134,7 +136,9 @@ class TransmutingJsonContent(Spec):
         model.test = 'sample'
         model.second = 'other'
 
-        expected_result = '{"test": "sample", "second": "other"}'
+        expected_result = json.loads('{"test": "sample", "second": "other"}')
 
         result = JsonTransmuter.transmute_to(model)
-        expect(result).to.equal(expected_result)
+        result_dict = json.loads(result)
+        expect(result_dict['test']).to.equal(expected_result['test'])
+        expect(result_dict['second']).to.equal(expected_result['second'])
