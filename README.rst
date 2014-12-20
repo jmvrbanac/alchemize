@@ -27,6 +27,6 @@ Alchemize is available on PyPI
 .. |travis| image:: https://travis-ci.org/jmvrbanac/alchemize.svg
     :target: https://travis-ci.org/jmvrbanac/alchemize
 
-.. |coveralls| image:: https://coveralls.io/repos/jmvrbanac/alchemize/badge.png
+.. |coveralls| image:: https://img.shields.io/coveralls/jmvrbanac/alchemize.svg
   :target: https://coveralls.io/r/jmvrbanac/alchemize
 
