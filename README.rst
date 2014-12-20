@@ -13,6 +13,11 @@ to easily serialize your ORM models.
 
 * Documentation: `ReadTheDocs <http://alchemize.readthedocs.org>`_
 * Travis CI: |travis|
+* Coveralls: |coveralls|
 
 .. |travis| image:: https://travis-ci.org/jmvrbanac/alchemize.svg
     :target: https://travis-ci.org/jmvrbanac/alchemize
+
+.. |coveralls| image:: https://coveralls.io/repos/jmvrbanac/alchemize/badge.png
+  :target: https://coveralls.io/r/jmvrbanac/alchemize
+
