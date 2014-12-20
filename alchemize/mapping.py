@@ -34,4 +34,23 @@ class BaseMappedModel(object):
 
 
 class JsonMappedModel(BaseMappedModel):
+    """Creates an explicit mapping for de/serialization by the JsonTransmuter
+
+
+    **Map Structure**::
+
+        'json_attr_name': ['python_attr_name', StorageType]
+
+    **Mapping Types**::
+
+        __mapping__ = {
+            'name': ['name', str],
+            'number': ['number', int],
+            'dict': ['sample_dict', dict],
+            'list': ['sample_list', list],
+            'child': ['child', ChildModel],
+            'children': ['children', [ChildModel]]
+        }
+
+    """
     pass

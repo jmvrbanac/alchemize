@@ -11,6 +11,13 @@ Transmuters
     :members:
 
 
+Mapped Models
+----------------
+
+.. autoclass:: alchemize.mapping.JsonMappedModel
+    :members:
+
+
 Exceptions
 ------------
 
