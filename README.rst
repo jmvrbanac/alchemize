@@ -9,3 +9,6 @@ transform data from Python objects to a serializable form and vice-versa.
 The power of Alchemize is that you can use it to augment existing
 model structures from other libraries. For example, you can use Alchemize
 to easily serialize your ORM models.
+
+
+Documentation: `ReadTheDocs <http://alchemize.readthedocs.org>`_
