@@ -14,23 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import json
-import types
+import six
 from abc import ABCMeta, abstractmethod
 
 from alchemize.mapping import JsonMappedModel
 
 
 NON_CONVERSION_TYPES = [
-    types.BooleanType,
-    types.DictType,
-    types.DictionaryType,
-    types.FloatType,
-    types.IntType,
-    types.ListType,
-    types.LongType,
-    types.NoneType,
-    types.StringType,
-    types.UnicodeType
+    bool,
+    dict,
+    float,
+    int,
+    list,
+    type(None),
+    str,
+    six.integer_types,
+    six.string_types
 ]
 
 
@@ -85,7 +84,7 @@ class AbstractBaseTransmuter(object):
 
     @classmethod
     def is_list_of_mapping_types(cls, attr_type):
-        if isinstance(attr_type, types.ListType) and len(attr_type) == 1:
+        if isinstance(attr_type, list) and len(attr_type) == 1:
             if cls._check_supported_mapping(attr_type[0]):
                 return True
         return False
@@ -109,6 +108,7 @@ class JsonTransmuter(AbstractBaseTransmuter):
 
         for json_key, map_list in mapped_model.__get_full_mapping__().items():
             attr_name, attr_type = map_list[0], map_list[1]
+            attr_value = None
 
             if hasattr(mapped_model, attr_name):
                 current_value = getattr(mapped_model, attr_name)
@@ -118,7 +118,7 @@ class JsonTransmuter(AbstractBaseTransmuter):
 
                 # Converts lists of mapped objects
                 elif (cls.is_list_of_mapping_types(attr_type)
-                      and isinstance(current_value, types.ListType)):
+                      and isinstance(current_value, list)):
                     attr_value = [cls.transmute_to(child, False)
                                   for child in current_value]
 
@@ -126,7 +126,8 @@ class JsonTransmuter(AbstractBaseTransmuter):
                 elif attr_type in NON_CONVERSION_TYPES:
                     attr_value = current_value
 
-                result[json_key] = attr_value
+                if attr_value:
+                    result[json_key] = attr_value
 
         return json.dumps(result) if to_string else result
 
@@ -141,7 +142,7 @@ class JsonTransmuter(AbstractBaseTransmuter):
         super(JsonTransmuter, cls).transmute_from(data, mapped_model_type)
 
         json_dict = data
-        if isinstance(data, types.StringType):
+        if isinstance(data, six.string_types):
             json_dict = json.loads(data)
 
         mapped_obj = mapped_model_type()
@@ -158,7 +159,7 @@ class JsonTransmuter(AbstractBaseTransmuter):
 
                 # Converts lists of mapped objects
                 elif (cls.is_list_of_mapping_types(attr_type)
-                      and isinstance(val, types.ListType)):
+                      and isinstance(val, list)):
                     attr_value = [cls.transmute_from(child, attr_type[0])
                                   for child in val]
 
