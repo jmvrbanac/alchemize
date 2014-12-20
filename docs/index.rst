@@ -1,6 +1,8 @@
 Welcome to Alchemize's documentation!
 =====================================
 
+|travis|  |coveralls|
+
 Alchemize is designed to be a simple serialization and deserialization
 library. The primary use-case for Alchemize is to allow for users to
 quickly build ReST clients using simple model mappings to transform
@@ -9,6 +11,16 @@ data from Python objects to a serializable form and vice-versa.
 The power of Alchemize is that you can use it to augment existing
 model structures from other libraries. For example, you can use Alchemize
 to easily serialize your ORM models.
+
+Installation
+--------------
+
+Alchemize is available on PyPI
+
+.. code-block:: shell
+
+    pip install alchemize
+
 
 .. toctree::
    :maxdepth: 2
@@ -24,3 +36,8 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+.. |travis| image:: https://travis-ci.org/jmvrbanac/alchemize.svg
+    :target: https://travis-ci.org/jmvrbanac/alchemize
+
+.. |coveralls| image:: https://coveralls.io/repos/jmvrbanac/alchemize/badge.png
+  :target: https://coveralls.io/r/jmvrbanac/alchemize

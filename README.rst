@@ -10,6 +10,15 @@ The power of Alchemize is that you can use it to augment existing
 model structures from other libraries. For example, you can use Alchemize
 to easily serialize your ORM models.
 
+Installation
+--------------
+
+Alchemize is available on PyPI
+
+.. code-block:: shell
+
+    pip install alchemize
+
 
 * Documentation: `ReadTheDocs <http://alchemize.readthedocs.org>`_
 * Travis CI: |travis|
