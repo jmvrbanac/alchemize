@@ -11,4 +11,8 @@ model structures from other libraries. For example, you can use Alchemize
 to easily serialize your ORM models.
 
 
-Documentation: `ReadTheDocs <http://alchemize.readthedocs.org>`_
+* Documentation: `ReadTheDocs <http://alchemize.readthedocs.org>`_
+* Travis CI: |travis|
+
+.. |travis| image:: https://travis-ci.org/jmvrbanac/alchemize.svg
+    :target: https://travis-ci.org/jmvrbanac/alchemize
