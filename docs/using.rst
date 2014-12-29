@@ -50,8 +50,8 @@ API to retrieve data on a single user.
         __mapping__ = {
             'id': ['user_id', int],
             'login': ['login', str],
-            "email": ["octocat@github.com", str],
-            "name": ["monalisa octocat", str]
+            "email": ["email", str],
+            "name": ["name", str]
         }
         ...
 
