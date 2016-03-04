@@ -119,6 +119,24 @@ class TransmutingJsonContent(Spec):
         result = JsonTransmuter.transmute_to(mapping)
         expect(result).to.equal(expected_result)
 
+    def transmute_to_with_null_value(self):
+        mapping = TestMappedModel()
+        mapping.test = None
+
+        expected_result = '{"test": null}'
+
+        result = JsonTransmuter.transmute_to(mapping, assign_all=True)
+        expect(result).to.equal(expected_result)
+
+    def transmute_to_with_zero_int_value(self):
+        mapping = TestMappedModel()
+        mapping.test = 0
+
+        expected_result = '{"test": 0}'
+
+        result = JsonTransmuter.transmute_to(mapping)
+        expect(result).to.equal(expected_result)
+
     def transmute_to_with_list_of_child_mappings(self):
         child_mapping = TestMappedModel()
         child_mapping.test = 'sample stuff'
