@@ -94,7 +94,8 @@ class JsonTransmuter(AbstractBaseTransmuter):
     __supported_base_mappings__ = [JsonMappedModel]
 
     @classmethod
-    def transmute_to(cls, mapped_model, to_string=True, assign_all=False):
+    def transmute_to(cls, mapped_model, to_string=True, assign_all=False,
+                     coerce_values=True):
         """Converts a model based off of a JsonMappedModel into JSON.
 
         :param mapped_model: An instance of a subclass of JsonMappedModel.
@@ -102,6 +103,8 @@ class JsonTransmuter(AbstractBaseTransmuter):
             and return a dictionary instead.
         :param assign_all: Boolean value to force assignment of all values,
             including null values.
+        :param coerce_values: Boolean value to allow for values with python
+            types to be coerced with their mapped type.
         :returns: A string or dictionary containing the JSON form of your
             mapped model.
         """
@@ -127,6 +130,9 @@ class JsonTransmuter(AbstractBaseTransmuter):
                 # Converts all other objects (if possible)
                 elif attr_type in NON_CONVERSION_TYPES:
                     attr_value = current_value
+
+                    if coerce_values:
+                        attr_value = attr_type(attr_value)
 
                 if assign_all or attr_value is not None:
                     result[json_key] = attr_value

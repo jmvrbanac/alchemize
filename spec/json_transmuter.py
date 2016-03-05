@@ -1,4 +1,5 @@
 import json
+import six
 
 from specter import Spec, DataSpec, expect, require
 from alchemize.transmute import JsonTransmuter
@@ -44,7 +45,17 @@ TRANSMUTE_COMMON_TYPES_DATASET = {
     'dict': {
         'attr_type': dict,
         'attr_data': '{"a": "b"}', 'attr_result': {'a': 'b'}
-    }
+    },
+
+    # ---------------- Default Type Values
+    'int_zero': {
+        'attr_type': int,
+        'attr_data': '0', 'attr_result': 0
+    },
+    'str_empty': {
+        'attr_type': str,
+        'attr_data': '""', 'attr_result': ''
+    },
 }
 
 
@@ -125,11 +136,20 @@ class TransmutingJsonContent(Spec):
 
         expected_result = '{"test": null}'
 
-        result = JsonTransmuter.transmute_to(mapping, assign_all=True)
+        result = JsonTransmuter.transmute_to(
+            mapping,
+            assign_all=True,
+            coerce_values=False
+        )
         expect(result).to.equal(expected_result)
 
     def transmute_to_with_zero_int_value(self):
-        mapping = TestMappedModel()
+        class IntMappedModel(JsonMappedModel):
+            __mapping__ = {
+                'test': ['test', int]
+            }
+
+        mapping = IntMappedModel()
         mapping.test = 0
 
         expected_result = '{"test": 0}'
@@ -160,3 +180,20 @@ class TransmutingJsonContent(Spec):
         result_dict = json.loads(result)
         expect(result_dict['test']).to.equal(expected_result['test'])
         expect(result_dict['second']).to.equal(expected_result['second'])
+
+    if six.PY3:
+        def transmute_to_coerce_decimal_to_int(self):
+            import decimal
+
+            class IntMappedModel(JsonMappedModel):
+                __mapping__ = {
+                    'test': ['test', int]
+                }
+
+            mapping = IntMappedModel()
+            mapping.test = decimal.Decimal(10)
+
+            expected_result = '{"test": 10}'
+
+            result = JsonTransmuter.transmute_to(mapping)
+            expect(result).to.equal(expected_result)
