@@ -1,0 +1,4 @@
+-r doc-requirements.txt
+-r test-requirements.txt
+twine
+bumpversion
