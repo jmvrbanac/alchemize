@@ -14,6 +14,9 @@ Transmuters
 Mapped Models
 ----------------
 
+.. autoclass:: alchemize.mapping.Attr
+    :members:
+
 .. autoclass:: alchemize.mapping.JsonMappedModel
     :members:
 

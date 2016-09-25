@@ -15,6 +15,20 @@ limitations under the License.
 """
 
 
+class Attr(object):
+    """ Attribute Definition
+
+    :param name: Python attribute name
+    :param type: Attribute type (e.g str, int, dict, etc)
+    :param serialize: Determines if the attribute can be serialized
+    """
+    def __init__(self, attr_name, attr_type, serialize=True):
+
+        self.name = attr_name
+        self.type = attr_type
+        self.serialize = serialize
+
+
 class BaseMappedModel(object):
     __mapping__ = {}
 
@@ -39,17 +53,17 @@ class JsonMappedModel(BaseMappedModel):
 
     **Map Structure**::
 
-        'json_attr_name': ['python_attr_name', StorageType]
+        'json_attr_name': Attr('python_attr_name', StorageType)
 
     **Mapping Types**::
 
         __mapping__ = {
-            'name': ['name', str],
-            'number': ['number', int],
-            'dict': ['sample_dict', dict],
-            'list': ['sample_list', list],
-            'child': ['child', ChildModel],
-            'children': ['children', [ChildModel]]
+            'name': Attr('name', str),
+            'number': Attr('number', int),
+            'dict': Attr('sample_dict', dict),
+            'list': Attr('sample_list', list),
+            'child': Attr('child', ChildModel),
+            'children': Attr('children', [ChildModel])
         }
 
     """

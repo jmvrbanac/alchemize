@@ -3,30 +3,30 @@ import six
 
 from specter import Spec, DataSpec, expect, require
 from alchemize.transmute import JsonTransmuter
-from alchemize.mapping import JsonMappedModel
+from alchemize.mapping import JsonMappedModel, Attr
 
 
 class TestMappedModel(JsonMappedModel):
     __mapping__ = {
-        'test': ['test', str]
+        'test': Attr('test', str)
     }
 
 
 class TestChildMapping(JsonMappedModel):
     __mapping__ = {
-        'child': ['child', TestMappedModel]
+        'child': Attr('child', TestMappedModel)
     }
 
 
 class TestListChildMapping(JsonMappedModel):
     __mapping__ = {
-        'children': ['children', [TestMappedModel]]
+        'children': Attr('children', [TestMappedModel])
     }
 
 
 class TestExtendedModel(TestMappedModel):
     __mapping__ = {
-        'second': ['second', str]
+        'second': Attr('second', str)
     }
 
 TRANSMUTE_COMMON_TYPES_DATASET = {
@@ -68,7 +68,7 @@ class TransmutingJsonContent(Spec):
                                           attr_result):
             class FlexMapping(JsonMappedModel):
                 __mapping__ = {
-                    'test': ['test', attr_type]
+                    'test': Attr('test', attr_type)
                 }
 
             data = '{{"test": {0} }}'.format(attr_data)
@@ -146,7 +146,7 @@ class TransmutingJsonContent(Spec):
     def transmute_to_with_zero_int_value(self):
         class IntMappedModel(JsonMappedModel):
             __mapping__ = {
-                'test': ['test', int]
+                'test': Attr('test', int)
             }
 
         mapping = IntMappedModel()
@@ -187,7 +187,7 @@ class TransmutingJsonContent(Spec):
 
             class IntMappedModel(JsonMappedModel):
                 __mapping__ = {
-                    'test': ['test', int]
+                    'test': Attr('test', int)
                 }
 
             mapping = IntMappedModel()
@@ -197,3 +197,54 @@ class TransmutingJsonContent(Spec):
 
             result = JsonTransmuter.transmute_to(mapping)
             expect(result).to.equal(expected_result)
+
+    def transmute_to_with_old_attr_style(self):
+        class OldStyleMappedModel(JsonMappedModel):
+            __mapping__ = {
+                'test': ['test', int]
+            }
+
+        mapping = OldStyleMappedModel()
+        mapping.test = 0
+
+        expected_result = '{"test": 0}'
+
+        result = JsonTransmuter.transmute_to(mapping)
+        expect(result).to.equal(expected_result)
+
+        result = JsonTransmuter.transmute_from(
+            {'test': 1},
+            OldStyleMappedModel
+        )
+        expect(result.test).to.equal(1)
+
+    def transmute_to_and_from_with_excluded_items(self):
+        class MixedMappedModel(JsonMappedModel):
+            __mapping__ = {
+                'test': Attr('test', int),
+                'another': Attr('another', int, serialize=False)
+            }
+
+        mapping = MixedMappedModel()
+        mapping.test = 1
+        mapping.another = 2
+
+        without_result = '{"test": 1}'
+        result_without = JsonTransmuter.transmute_to(mapping)
+        expect(result_without).to.equal(without_result)
+
+        # Make sure we can override the serialization preferences
+        result_with = JsonTransmuter.transmute_to(
+            mapping,
+            to_string=False,
+            serialize_all=True
+        )
+        expect(result_with.get('test')).to.equal(1)
+        expect(result_with.get('another')).to.equal(2)
+
+        result = JsonTransmuter.transmute_from(
+            {'test': 100, 'another': 200},
+            MixedMappedModel
+        )
+        expect(result.test).to.equal(100)
+        expect(result.another).to.equal(200)

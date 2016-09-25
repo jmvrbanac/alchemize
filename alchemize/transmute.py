@@ -17,7 +17,7 @@ import json
 import six
 from abc import ABCMeta, abstractmethod
 
-from alchemize.mapping import JsonMappedModel
+from alchemize.mapping import JsonMappedModel, Attr
 
 
 NON_CONVERSION_TYPES = [
@@ -95,7 +95,7 @@ class JsonTransmuter(AbstractBaseTransmuter):
 
     @classmethod
     def transmute_to(cls, mapped_model, to_string=True, assign_all=False,
-                     coerce_values=True):
+                     coerce_values=True, serialize_all=False):
         """Converts a model based off of a JsonMappedModel into JSON.
 
         :param mapped_model: An instance of a subclass of JsonMappedModel.
@@ -105,14 +105,25 @@ class JsonTransmuter(AbstractBaseTransmuter):
             including null values.
         :param coerce_values: Boolean value to allow for values with python
             types to be coerced with their mapped type.
+        :param serialize_all: Boolean value that allows for you to force
+            serialization of values regardless of the attribute settings.
         :returns: A string or dictionary containing the JSON form of your
             mapped model.
         """
         super(JsonTransmuter, cls).transmute_to(mapped_model)
         result = {}
 
-        for json_key, map_list in mapped_model.__get_full_mapping__().items():
-            attr_name, attr_type = map_list[0], map_list[1]
+        for json_key, map_obj in mapped_model.__get_full_mapping__().items():
+
+            # For backwards compatibility
+            if not isinstance(map_obj, Attr):
+                map_obj = Attr(map_obj[0], map_obj[1])
+
+            # Make we ignore values that shouldn't be serialized
+            if not serialize_all and not map_obj.serialize:
+                continue
+
+            attr_name, attr_type = map_obj.name, map_obj.type
             attr_value = None
 
             if hasattr(mapped_model, attr_name):
@@ -155,9 +166,13 @@ class JsonTransmuter(AbstractBaseTransmuter):
 
         mapped_obj = mapped_model_type()
         for key, val in json_dict.items():
-            map_list = mapped_model_type.__get_full_mapping__().get(key)
-            if map_list and len(map_list) == 2:
-                attr_name, attr_type = map_list[0], map_list[1]
+            map_obj = mapped_model_type.__get_full_mapping__().get(key)
+            if map_obj:
+                # For backwards compatibility
+                if not isinstance(map_obj, Attr):
+                    map_obj = Attr(map_obj[0], map_obj[1])
+
+                attr_name, attr_type = map_obj.name, map_obj.type
 
                 attr_value = None
 

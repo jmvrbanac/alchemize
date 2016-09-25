@@ -44,14 +44,14 @@ API to retrieve data on a single user.
 
 .. code-block:: python
 
-    from alchemize.mapping import JsonMappedModel
+    from alchemize.mapping import JsonMappedModel, Attr
 
     class ExampleClass(JsonMappedModel):
         __mapping__ = {
-            'id': ['user_id', int],
-            'login': ['login', str],
-            "email": ["email", str],
-            "name": ["name", str]
+            'id': Attr('user_id', int),
+            'login': Attr('login', str),
+            "email": Attr('email', str),
+            "name": Attr('name' , str)
         }
         ...
 
@@ -106,18 +106,18 @@ We want to convert the following JSON into appropriate Python objects.
 
 .. code-block:: python
 
-    from alchemize.mapping import JsonMappedModel
+    from alchemize.mapping import JsonMappedModel, Attr
 
     class User(JsonMappedModel):
         __mapping__ = {
-            'name': ['name', str],
-            'email': ['email', str]
+            'name': Attr('name', str),
+            'email': Attr('email', str)
         }
 
     class Project(JsonMappedModel):
         __mapping__ = {
-            'id': ['project_id', int],
-            'users': ['users', [User]]
+            'id': Attr('project_id', int),
+            'users': Attr('users', [User])
         }
 
 
@@ -137,3 +137,28 @@ Python object structure.
 
 For more information on how to define your mappings, take a look at the
 :doc:`api`
+
+
+Excluding Attributes for Serialization
+--------------------------------------
+
+For specific data models there are instances where you don't want to serialize
+certain attributes. For example, you're pulling user information from a database
+but you don't want to serialize the password hash or some other internal value.
+This is done by setting the ``serialize=False`` argument on your ``Attr``.
+
+.. code-block:: python
+
+    from alchemize.mapping import JsonMappedModel, Attr
+
+    class User(JsonMappedModel):
+        __mapping__ = {
+            'name': Attr('name', str),
+            'email': Attr('email', str)
+            'password': Attr('password', str, serialize=False)
+        }
+
+.. note::
+
+    The ``serialize`` setting can be overridden by the transmuter if
+    explicited set during the ``transmute_to(...)`` call.
