@@ -6,6 +6,13 @@ from alchemize.transmute import JsonTransmuter
 from alchemize.mapping import JsonMappedModel, Attr
 
 
+class TestWrappedModel(JsonMappedModel):
+    __wrapped_attr_name__ = '#item'
+    __mapping__ = {
+        'test': Attr('test', str)
+    }
+
+
 class TestMappedModel(JsonMappedModel):
     __mapping__ = {
         'test': Attr('test', str)
@@ -217,6 +224,22 @@ class TransmutingJsonContent(Spec):
             OldStyleMappedModel
         )
         expect(result.test).to.equal(1)
+
+    def transmute_to_and_from_with_wrapped_attr_name(self):
+        mapping = TestWrappedModel()
+        mapping.test = "bam"
+
+        json_str = '{"#item": {"test": "bam"}}'
+
+        result = JsonTransmuter.transmute_to(
+            mapping,
+            assign_all=True,
+            coerce_values=False
+        )
+        expect(result).to.equal(json_str)
+
+        result = JsonTransmuter.transmute_from(json_str, TestWrappedModel)
+        expect(result.test).to.equal("bam")
 
     def transmute_to_and_from_with_excluded_items(self):
         class MixedMappedModel(JsonMappedModel):

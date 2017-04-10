@@ -162,3 +162,35 @@ This is done by setting the ``serialize=False`` argument on your ``Attr``.
 
     The ``serialize`` setting can be overridden by the transmuter if
     explicited set during the ``transmute_to(...)`` call.
+
+
+Wrapped Objects
+---------------
+
+Some API responses can wrap the information you're interested in inside a
+container object. There are many reasons for this, but often from a model
+interface perspective, you just want to represent the data itself and not
+the container. To handle this use-case, Alchemize provides the
+``__wrapped_attr_name__`` option.
+
+This option allows for parsing this JSON into the following single model
+
+.. code-block:: javascript
+
+    {
+        "#item": {
+            "name": "John Doe",
+            "email": "rando@doe.com",
+        }
+    }
+
+.. code-block:: python
+
+    from alchemize.mapping import JsonMappedModel, Attr
+
+    class User(JsonMappedModel):
+        __wrapped_attr_name__ = '#item'
+        __mapping__ = {
+            'name': Attr('name', str),
+            'email': Attr('email', str)
+        }

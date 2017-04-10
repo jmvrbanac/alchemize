@@ -30,6 +30,7 @@ class Attr(object):
 
 
 class BaseMappedModel(object):
+    __wrapped_attr_name__ = None
     __mapping__ = {}
 
     @classmethod

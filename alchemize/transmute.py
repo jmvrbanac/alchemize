@@ -148,6 +148,10 @@ class JsonTransmuter(AbstractBaseTransmuter):
                 if assign_all or attr_value is not None:
                     result[json_key] = attr_value
 
+        # Support Attribute Wrapping
+        if mapped_model.__wrapped_attr_name__:
+            result = {mapped_model.__wrapped_attr_name__: result}
+
         return json.dumps(result) if to_string else result
 
     @classmethod
@@ -165,6 +169,11 @@ class JsonTransmuter(AbstractBaseTransmuter):
             json_dict = json.loads(data)
 
         mapped_obj = mapped_model_type()
+
+        # Support Attribute Wrapping
+        if mapped_obj.__wrapped_attr_name__:
+            json_dict = json_dict.get(mapped_obj.__wrapped_attr_name__)
+
         for key, val in json_dict.items():
             map_obj = mapped_model_type.__get_full_mapping__().get(key)
             if map_obj:
