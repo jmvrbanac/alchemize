@@ -18,10 +18,11 @@ matrix:
     env: TOXENV=pypy
 
 install:
+    - pip install -U pip
     - pip install tox coveralls codecov
 
 script:
-    - tox -e $TOX_ENV
+    - tox -e $TOXENV
 
 after_success:
     - coveralls
