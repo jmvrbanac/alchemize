@@ -184,18 +184,23 @@ class JsonTransmuter(AbstractBaseTransmuter):
                     map_obj = Attr(map_obj[0], map_obj[1])
 
                 attr_name, attr_type = map_obj.name, map_obj.type
-
                 attr_value = None
 
                 # Convert a single mapped object
                 if cls._check_supported_mapping(attr_type, True):
-                    attr_value = cls.transmute_from(val, attr_type)
+                    attr_value = cls.transmute_from(
+                        val,
+                        attr_type,
+                        coerce_values
+                    )
 
                 # Converts lists of mapped objects
                 elif (cls.is_list_of_mapping_types(attr_type)
                       and isinstance(val, list)):
-                    attr_value = [cls.transmute_from(child, attr_type[0])
-                                  for child in val]
+                    attr_value = [
+                        cls.transmute_from(child, attr_type[0], coerce_values)
+                        for child in val
+                    ]
 
                 # Converts all other objects (if possible)
                 elif attr_type in NON_CONVERSION_TYPES:

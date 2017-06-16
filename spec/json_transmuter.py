@@ -287,3 +287,24 @@ class TransmutingJsonContent(Spec):
 
         expect(result.test).to.equal(1)
         expect(result.test).to.be_an_instance_of(int)
+
+    def transmute_from_can_coerce_nested(self):
+        class SubMappedModel(JsonMappedModel):
+            __mapping__ = {
+                'test': Attr('test', int),
+            }
+
+        class TestMappedModel(JsonMappedModel):
+            __mapping__ = {
+                'nope': Attr('nope', SubMappedModel),
+            }
+
+        test_json = '{"nope": {"test": "1"}}'
+        result = JsonTransmuter.transmute_from(
+            test_json,
+            TestMappedModel,
+            coerce_values=True
+        )
+
+        expect(result.nope.test).to.equal(1)
+        expect(result.nope.test).to.be_an_instance_of(int)
