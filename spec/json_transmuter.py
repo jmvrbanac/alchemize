@@ -36,6 +36,7 @@ class TestExtendedModel(TestMappedModel):
         'second': Attr('second', str)
     }
 
+
 TRANSMUTE_COMMON_TYPES_DATASET = {
     'str': {
         'attr_type': str,
@@ -271,3 +272,19 @@ class TransmutingJsonContent(Spec):
         )
         expect(result.test).to.equal(100)
         expect(result.another).to.equal(200)
+
+    def transmute_from_can_coerce_types(self):
+        class TestMappedModel(JsonMappedModel):
+            __mapping__ = {
+                'test': Attr('test', int),
+            }
+
+        test_json = '{"test": "1"}'
+        result = JsonTransmuter.transmute_from(
+            test_json,
+            TestMappedModel,
+            coerce_values=True
+        )
+
+        expect(result.test).to.equal(1)
+        expect(result.test).to.be_an_instance_of(int)

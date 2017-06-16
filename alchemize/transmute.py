@@ -155,11 +155,13 @@ class JsonTransmuter(AbstractBaseTransmuter):
         return json.dumps(result) if to_string else result
 
     @classmethod
-    def transmute_from(cls, data, mapped_model_type):
+    def transmute_from(cls, data, mapped_model_type, coerce_values=False):
         """Converts a JSON string or dict into a corresponding Mapping Object.
 
         :param data: JSON data in string or dictionary form.
         :param mapped_model_type: A type that extends the JsonMappedModel base.
+        :param coerce_values: Boolean value to allow for values with python
+            types to be coerced with their mapped type.
         :returns: An instance of your mapped model type.
         """
         super(JsonTransmuter, cls).transmute_from(data, mapped_model_type)
@@ -198,6 +200,9 @@ class JsonTransmuter(AbstractBaseTransmuter):
                 # Converts all other objects (if possible)
                 elif attr_type in NON_CONVERSION_TYPES:
                     attr_value = val
+
+                    if coerce_values:
+                        attr_value = attr_type(attr_value)
 
                 # Add mapped value to the new mapped_obj is possible
                 setattr(mapped_obj, attr_name, attr_value)
