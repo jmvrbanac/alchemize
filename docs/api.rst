@@ -4,20 +4,20 @@ Alchemize API Documentation
 Transmuters
 ------------------
 
-.. autoclass:: alchemize.transmute.JsonTransmuter
+.. autoclass:: alchemize.JsonTransmuter
     :members:
 
-.. autoclass:: alchemize.transmute.AbstractBaseTransmuter
+.. autoclass:: alchemize.AbstractBaseTransmuter
     :members:
 
 
 Mapped Models
 ----------------
 
-.. autoclass:: alchemize.mapping.Attr
+.. autoclass:: alchemize.Attr
     :members:
 
-.. autoclass:: alchemize.mapping.JsonMappedModel
+.. autoclass:: alchemize.JsonMappedModel
     :members:
 
 

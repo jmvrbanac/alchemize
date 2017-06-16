@@ -2,8 +2,7 @@ import json
 import six
 
 from specter import Spec, DataSpec, expect, require
-from alchemize.transmute import JsonTransmuter
-from alchemize.mapping import JsonMappedModel, Attr
+from alchemize import JsonTransmuter, JsonMappedModel, Attr
 
 
 class TestWrappedModel(JsonMappedModel):

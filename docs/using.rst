@@ -44,7 +44,7 @@ API to retrieve data on a single user.
 
 .. code-block:: python
 
-    from alchemize.mapping import JsonMappedModel, Attr
+    from alchemize import JsonMappedModel, Attr
 
     class ExampleClass(JsonMappedModel):
         __mapping__ = {
@@ -63,7 +63,7 @@ our data.
 
 .. code-block:: python
 
-    from alchemize.transmute import JsonTransmuter
+    from alchemize import JsonTransmuter
 
     # From JSON to our Python Mapped Model
     result_model = JsonTransmuter.transmute_from(json_str, ExampleClass)
@@ -106,7 +106,7 @@ We want to convert the following JSON into appropriate Python objects.
 
 .. code-block:: python
 
-    from alchemize.mapping import JsonMappedModel, Attr
+    from alchemize import JsonMappedModel, Attr
 
     class User(JsonMappedModel):
         __mapping__ = {
@@ -125,7 +125,7 @@ We can now deserialize the data into our models using the JsonTransmuter
 
 .. code-block:: python
 
-    from alchemize.transmute import JsonTransmuter
+    from alchemize import JsonTransmuter
 
     result_model = JsonTransmuter.transmute_from(json_str, Project)
 
@@ -149,7 +149,7 @@ This is done by setting the ``serialize=False`` argument on your ``Attr``.
 
 .. code-block:: python
 
-    from alchemize.mapping import JsonMappedModel, Attr
+    from alchemize import JsonMappedModel, Attr
 
     class User(JsonMappedModel):
         __mapping__ = {
@@ -186,7 +186,7 @@ This option allows for parsing this JSON into the following single model
 
 .. code-block:: python
 
-    from alchemize.mapping import JsonMappedModel, Attr
+    from alchemize import JsonMappedModel, Attr
 
     class User(JsonMappedModel):
         __wrapped_attr_name__ = '#item'
