@@ -20,6 +20,8 @@ Mapped Models
 .. autoclass:: alchemize.JsonMappedModel
     :members:
 
+.. autofunction:: alchemize.mapping.get_key_paths
+
 
 Exceptions
 ------------

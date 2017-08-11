@@ -20,7 +20,7 @@ class TestMappedModel(JsonMappedModel):
 
 class TestChildMapping(JsonMappedModel):
     __mapping__ = {
-        'child': Attr('child', TestMappedModel)
+        'child': Attr('child', TestMappedModel),
     }
 
 

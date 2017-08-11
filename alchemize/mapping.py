@@ -69,3 +69,64 @@ class JsonMappedModel(BaseMappedModel):
 
     """
     pass
+
+
+def _get_normalized_map(model):
+    """Normalizes mapping data to support backward compatibility."""
+    key_map = {}
+
+    for key, map_obj in model.__get_full_mapping__().items():
+        if not isinstance(map_obj, Attr):
+            key_map[key] = Attr(map_obj[0], map_obj[1])
+        else:
+            key_map[key] = map_obj
+
+    return key_map
+
+
+def is_mapped_model(obj):
+    return isinstance(obj, type) and issubclass(obj, BaseMappedModel)
+
+
+def get_key_paths(model, sep='/', prefix=''):
+    """Walks a model class and returns a list of all key paths
+
+    :param model: Mapped Model instance or class
+    :param sep: Separator used to join the keys together
+    :param prefix: Prefix to add to all keys
+
+    :return: List of key paths
+    """
+    key_list = []
+
+    for key, attr in _get_normalized_map(model).items():
+        full_key_name = '{pre}{sep}{key}'.format(
+            pre=prefix,
+            sep=sep,
+            key=key
+        )
+
+        if is_mapped_model(attr.type):
+            key_list.extend(
+                get_key_paths(
+                    attr.type,
+                    sep=sep,
+                    prefix=full_key_name
+                )
+            )
+
+        elif (isinstance(attr.type, list)
+                and len(attr.type) == 1
+                and is_mapped_model(attr.type[0])):
+            key_list.extend(
+                get_key_paths(
+                    attr.type[0],
+                    sep=sep,
+                    prefix=full_key_name
+                )
+            )
+
+        else:
+            key_list.append(full_key_name)
+
+    return key_list
