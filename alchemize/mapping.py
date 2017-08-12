@@ -71,7 +71,7 @@ class JsonMappedModel(BaseMappedModel):
     pass
 
 
-def _get_normalized_map(model):
+def get_normalized_map(model):
     """Normalizes mapping data to support backward compatibility."""
     key_map = {}
 
@@ -99,7 +99,7 @@ def get_key_paths(model, sep='/', prefix=''):
     """
     key_list = []
 
-    for key, attr in _get_normalized_map(model).items():
+    for key, attr in get_normalized_map(model).items():
         full_key_name = '{pre}{sep}{key}'.format(
             pre=prefix,
             sep=sep,

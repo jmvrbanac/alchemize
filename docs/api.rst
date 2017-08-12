@@ -22,6 +22,8 @@ Mapped Models
 
 .. autofunction:: alchemize.mapping.get_key_paths
 
+.. autofunction:: alchemize.mapping.get_normalized_map
+
 
 Exceptions
 ------------
