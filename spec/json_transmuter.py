@@ -37,6 +37,10 @@ class TestExtendedModel(TestMappedModel):
 
 
 TRANSMUTE_COMMON_TYPES_DATASET = {
+    'bool': {
+        'attr_type': bool,
+        'attr_data': 'true', 'attr_result': True
+    },
     'str': {
         'attr_type': str,
         'attr_data': '"data"', 'attr_result': 'data'
