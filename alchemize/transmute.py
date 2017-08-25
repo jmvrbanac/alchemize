@@ -17,7 +17,7 @@ import json
 import six
 from abc import ABCMeta, abstractmethod
 
-from alchemize.mapping import JsonMappedModel, Attr
+from alchemize.mapping import JsonMappedModel, Attr, get_normalized_map
 
 
 NON_CONVERSION_TYPES = [
@@ -176,40 +176,30 @@ class JsonTransmuter(AbstractBaseTransmuter):
         if mapped_obj.__wrapped_attr_name__:
             json_dict = json_dict.get(mapped_obj.__wrapped_attr_name__)
 
-        for key, val in json_dict.items():
-            map_obj = mapped_model_type.__get_full_mapping__().get(key)
-            if map_obj:
-                # For backwards compatibility
-                if not isinstance(map_obj, Attr):
-                    map_obj = Attr(map_obj[0], map_obj[1])
+        for name, attr in get_normalized_map(mapped_model_type).items():
+            val = json_dict.get(name)
+            attr_value = None
 
-                attr_name, attr_type = map_obj.name, map_obj.type
-                attr_value = None
+            # Convert a single mapped object
+            if cls._check_supported_mapping(attr.type, True):
+                attr_value = cls.transmute_from(val, attr.type, coerce_values)
 
-                # Convert a single mapped object
-                if cls._check_supported_mapping(attr_type, True):
-                    attr_value = cls.transmute_from(
-                        val,
-                        attr_type,
-                        coerce_values
-                    )
+            # Converts lists of mapped objects
+            elif (cls.is_list_of_mapping_types(attr.type)
+                  and isinstance(val, list)):
+                attr_value = [
+                    cls.transmute_from(child, attr.type[0], coerce_values)
+                    for child in val
+                ]
 
-                # Converts lists of mapped objects
-                elif (cls.is_list_of_mapping_types(attr_type)
-                      and isinstance(val, list)):
-                    attr_value = [
-                        cls.transmute_from(child, attr_type[0], coerce_values)
-                        for child in val
-                    ]
+            # Converts all other objects (if possible)
+            elif attr.type in NON_CONVERSION_TYPES:
+                attr_value = val
 
-                # Converts all other objects (if possible)
-                elif attr_type in NON_CONVERSION_TYPES:
-                    attr_value = val
+                if coerce_values:
+                    attr_value = attr.type(attr_value)
 
-                    if coerce_values:
-                        attr_value = attr_type(attr_value)
-
-                # Add mapped value to the new mapped_obj is possible
-                setattr(mapped_obj, attr_name, attr_value)
+            # Add mapped value to the new mapped_obj is possible
+            setattr(mapped_obj, name, attr_value)
 
         return mapped_obj
