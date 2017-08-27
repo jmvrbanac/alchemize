@@ -21,12 +21,14 @@ class Attr(object):
     :param name: Python attribute name
     :param type: Attribute type (e.g str, int, dict, etc)
     :param serialize: Determines if the attribute can be serialized
+    :param required: Forces attribute to be defined
     """
-    def __init__(self, attr_name, attr_type, serialize=True):
+    def __init__(self, attr_name, attr_type, serialize=True, required=False):
 
         self.name = attr_name
         self.type = attr_type
         self.serialize = serialize
+        self.required = required
 
 
 class BaseMappedModel(object):

@@ -3,6 +3,7 @@ import six
 
 from specter import Spec, DataSpec, expect, require
 from alchemize import JsonTransmuter, JsonMappedModel, Attr
+from alchemize.transmute import RequiredAttributeError
 
 
 class TestWrappedModel(JsonMappedModel):
@@ -33,6 +34,13 @@ class TestListChildMapping(JsonMappedModel):
 class TestExtendedModel(TestMappedModel):
     __mapping__ = {
         'second': Attr('second', str)
+    }
+
+
+class TestRequiredMappedModel(JsonMappedModel):
+    __mapping__ = {
+        'test': Attr('test', int),
+        'other': Attr('other', int, required=True),
     }
 
 
@@ -312,3 +320,21 @@ class TransmutingJsonContent(Spec):
 
         expect(result.nope.test).to.equal(1)
         expect(result.nope.test).to.be_an_instance_of(int)
+
+    def transmute_from_with_missing_required_attr_raises(self):
+        expect(
+            JsonTransmuter.transmute_from,
+            [
+                '{"test": 1}',
+                TestRequiredMappedModel
+            ]
+        ).to.raise_a(RequiredAttributeError)
+
+    def transmute_from_with_all_required_attrs(self):
+        result = JsonTransmuter.transmute_from(
+            '{"test": 1, "other": 2}',
+            TestRequiredMappedModel,
+        )
+
+        expect(result.test).to.equal(1)
+        expect(result.other).to.equal(2)

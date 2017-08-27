@@ -40,6 +40,16 @@ class UnsupportedMappedModelError(Exception):
     pass
 
 
+class RequiredAttributeError(Exception):
+    """Exception that is raised when attempting to retrieve/apply an
+    attribute that isn't available.
+    """
+    def __init__(self, attribute_name):
+        super(RequiredAttributeError, self).__init__(
+            'Attribute "{}" is required'.format(attribute_name)
+        )
+
+
 class AbstractBaseTransmuter(object):
     """The abtract base class from which all Transmuters are built."""
     __metaclass__ = ABCMeta
@@ -179,6 +189,9 @@ class JsonTransmuter(AbstractBaseTransmuter):
         for name, attr in get_normalized_map(mapped_model_type).items():
             val = json_dict.get(name)
             attr_value = None
+
+            if attr.required and val is None:
+                raise RequiredAttributeError(name)
 
             # Convert a single mapped object
             if cls._check_supported_mapping(attr.type, True):
