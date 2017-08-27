@@ -17,7 +17,7 @@ import json
 import six
 from abc import ABCMeta, abstractmethod
 
-from alchemize.mapping import JsonMappedModel, Attr, get_normalized_map
+from alchemize.mapping import JsonMappedModel, get_normalized_map
 
 
 NON_CONVERSION_TYPES = [
@@ -123,40 +123,34 @@ class JsonTransmuter(AbstractBaseTransmuter):
         super(JsonTransmuter, cls).transmute_to(mapped_model)
         result = {}
 
-        for json_key, map_obj in mapped_model.__get_full_mapping__().items():
-
-            # For backwards compatibility
-            if not isinstance(map_obj, Attr):
-                map_obj = Attr(map_obj[0], map_obj[1])
-
-            # Make we ignore values that shouldn't be serialized
-            if not serialize_all and not map_obj.serialize:
-                continue
-
-            attr_name, attr_type = map_obj.name, map_obj.type
+        for name, attr in get_normalized_map(mapped_model).items():
             attr_value = None
 
-            if hasattr(mapped_model, attr_name):
-                current_value = getattr(mapped_model, attr_name)
+            # Make we ignore values that shouldn't be serialized
+            if not serialize_all and not attr.serialize:
+                continue
+
+            if hasattr(mapped_model, attr.name):
+                current_value = getattr(mapped_model, attr.name)
                 # Convert a single mapped object
-                if cls._check_supported_mapping(attr_type, True):
+                if cls._check_supported_mapping(attr.type, True):
                     attr_value = cls.transmute_to(current_value, False)
 
                 # Converts lists of mapped objects
-                elif (cls.is_list_of_mapping_types(attr_type)
+                elif (cls.is_list_of_mapping_types(attr.type)
                       and isinstance(current_value, list)):
                     attr_value = [cls.transmute_to(child, False)
                                   for child in current_value]
 
                 # Converts all other objects (if possible)
-                elif attr_type in NON_CONVERSION_TYPES:
+                elif attr.type in NON_CONVERSION_TYPES:
                     attr_value = current_value
 
                     if coerce_values:
-                        attr_value = attr_type(attr_value)
+                        attr_value = attr.type(attr_value)
 
                 if assign_all or attr_value is not None:
-                    result[json_key] = attr_value
+                    result[name] = attr_value
 
         # Support Attribute Wrapping
         if mapped_model.__wrapped_attr_name__:
