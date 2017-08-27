@@ -152,6 +152,9 @@ class JsonTransmuter(AbstractBaseTransmuter):
                 if assign_all or attr_value is not None:
                     result[name] = attr_value
 
+            elif attr.required:
+                raise RequiredAttributeError(attr.name)
+
         # Support Attribute Wrapping
         if mapped_model.__wrapped_attr_name__:
             result = {mapped_model.__wrapped_attr_name__: result}

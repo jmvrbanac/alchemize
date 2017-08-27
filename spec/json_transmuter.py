@@ -338,3 +338,22 @@ class TransmutingJsonContent(Spec):
 
         expect(result.test).to.equal(1)
         expect(result.other).to.equal(2)
+
+    def transmute_to_missing_required_attr_raises(self):
+        model = TestRequiredMappedModel()
+        model.test = 1
+
+        expect(
+            JsonTransmuter.transmute_to,
+            [model]
+        ).to.raise_a(RequiredAttributeError)
+
+    def transmute_to_with_all_required_attrs(self):
+        model = TestRequiredMappedModel()
+        model.test = 1
+        model.other = 2
+
+        result = JsonTransmuter.transmute_to(model, to_string=False)
+
+        expect(result['test']).to.equal(1)
+        expect(result['other']).to.equal(2)
