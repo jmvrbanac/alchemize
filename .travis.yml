@@ -19,11 +19,10 @@ matrix:
 
 install:
     - pip install -U pip
-    - pip install tox coveralls codecov
+    - pip install tox codecov
 
 script:
     - tox -e $TOXENV
 
 after_success:
-    - coveralls
     - codecov
