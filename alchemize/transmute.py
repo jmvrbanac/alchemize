@@ -33,14 +33,19 @@ NON_CONVERSION_TYPES = [
 ]
 
 
-class UnsupportedMappedModelError(Exception):
+class AlchemizeError(Exception):
+    """Base Exception for all Alchemize errors."""
+    pass
+
+
+class UnsupportedMappedModelError(AlchemizeError):
     """Exception that is raised when attempting to transmute a model that
     is not supported by the specified transmuter.
     """
     pass
 
 
-class RequiredAttributeError(Exception):
+class RequiredAttributeError(AlchemizeError):
     """Exception that is raised when attempting to retrieve/apply an
     attribute that isn't available.
     """
