@@ -381,3 +381,15 @@ class TransmutingJsonContent(Spec):
         result = JsonTransmuter.transmute_to(model, to_string=False)
 
         expect(result['my-thing']).to.equal('something')
+
+    def transmute_from_leaves_default_if_not_there(self):
+        class TestMappedModel(JsonMappedModel):
+            __mapping__ = {
+                'test': Attr('test', str),
+            }
+            test = ''
+
+        test_json = '{"not-in-here": "1"}'
+        result = JsonTransmuter.transmute_from(test_json, TestMappedModel)
+
+        expect(result.test).to.equal('')
