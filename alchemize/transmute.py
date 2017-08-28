@@ -195,6 +195,10 @@ class JsonTransmuter(AbstractBaseTransmuter):
             if attr.required and val is None:
                 raise RequiredAttributeError(name)
 
+            # PERF: If the value isn't there, lets just skip-on forward
+            elif val is None:
+                continue
+
             # Convert a single mapped object
             if cls._check_supported_mapping(attr.type, True):
                 attr_value = cls.transmute_from(val, attr.type, coerce_values)
@@ -215,7 +219,6 @@ class JsonTransmuter(AbstractBaseTransmuter):
                     attr_value = attr.type(attr_value)
 
             # Add mapped value to the new mapped_obj is possible
-            if attr_value is not None:
-                setattr(mapped_obj, attr.name, attr_value)
+            setattr(mapped_obj, attr.name, attr_value)
 
         return mapped_obj
