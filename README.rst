@@ -22,11 +22,10 @@ Alchemize is available on PyPI
 
 * Documentation: `ReadTheDocs <http://alchemize.readthedocs.org>`_
 * Travis CI: |travis|
-* Coveralls: |coveralls|
+* Coverage: |codecov|
 
 .. |travis| image:: https://travis-ci.org/jmvrbanac/alchemize.svg
     :target: https://travis-ci.org/jmvrbanac/alchemize
 
-.. |coveralls| image:: https://img.shields.io/coveralls/jmvrbanac/alchemize.svg
-  :target: https://coveralls.io/r/jmvrbanac/alchemize
-
+.. |codecov| image:: https://codecov.io/gh/jmvrbanac/alchemize/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/jmvrbanac/alchemize

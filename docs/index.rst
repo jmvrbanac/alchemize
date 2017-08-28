@@ -1,7 +1,7 @@
 Welcome to Alchemize's documentation!
 =====================================
 
-|travis|  |coveralls|
+|travis|  |codecov|
 
 Alchemize is designed to be a simple serialization and deserialization
 library. The primary use-case for Alchemize is to allow for users to
@@ -39,5 +39,5 @@ Indices and tables
 .. |travis| image:: https://travis-ci.org/jmvrbanac/alchemize.svg
     :target: https://travis-ci.org/jmvrbanac/alchemize
 
-.. |coveralls| image:: https://img.shields.io/coveralls/jmvrbanac/alchemize.svg
-  :target: https://coveralls.io/r/jmvrbanac/alchemize
+.. |codecov| image:: https://codecov.io/gh/jmvrbanac/alchemize/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/jmvrbanac/alchemize
