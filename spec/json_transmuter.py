@@ -37,6 +37,12 @@ class TestExtendedModel(TestMappedModel):
     }
 
 
+class TestDifferentAttrNaming(TestMappedModel):
+    __mapping__ = {
+        'my-thing': Attr('my_thing', str)
+    }
+
+
 class TestRequiredMappedModel(JsonMappedModel):
     __mapping__ = {
         'test': Attr('test', int),
@@ -357,3 +363,21 @@ class TransmutingJsonContent(Spec):
 
         expect(result['test']).to.equal(1)
         expect(result['other']).to.equal(2)
+
+    def transmute_from_with_different_attr_naming(self):
+        test_json = '{"my-thing": "something"}'
+
+        result = JsonTransmuter.transmute_from(
+            test_json,
+            TestDifferentAttrNaming
+        )
+
+        expect(result.my_thing).to.equal('something')
+
+    def transmute_to_with_different_attr_naming(self):
+        model = TestDifferentAttrNaming()
+        model.my_thing = 'something'
+
+        result = JsonTransmuter.transmute_to(model, to_string=False)
+
+        expect(result['my-thing']).to.equal('something')

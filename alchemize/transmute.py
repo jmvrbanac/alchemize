@@ -215,6 +215,6 @@ class JsonTransmuter(AbstractBaseTransmuter):
                     attr_value = attr.type(attr_value)
 
             # Add mapped value to the new mapped_obj is possible
-            setattr(mapped_obj, name, attr_value)
+            setattr(mapped_obj, attr.name, attr_value)
 
         return mapped_obj
