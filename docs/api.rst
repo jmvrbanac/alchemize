@@ -28,4 +28,8 @@ Mapped Models
 Exceptions
 ------------
 
+.. autoclass:: alchemize.AlchemizeError
+
+.. autoclass:: alchemize.transmute.RequiredAttributeError
+
 .. autoclass:: alchemize.transmute.UnsupportedMappedModelError

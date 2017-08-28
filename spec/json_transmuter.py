@@ -3,6 +3,7 @@ import six
 
 from specter import Spec, DataSpec, expect, require
 from alchemize import JsonTransmuter, JsonMappedModel, Attr
+from alchemize.transmute import RequiredAttributeError
 
 
 class TestWrappedModel(JsonMappedModel):
@@ -36,7 +37,18 @@ class TestExtendedModel(TestMappedModel):
     }
 
 
+class TestRequiredMappedModel(JsonMappedModel):
+    __mapping__ = {
+        'test': Attr('test', int),
+        'other': Attr('other', int, required=True),
+    }
+
+
 TRANSMUTE_COMMON_TYPES_DATASET = {
+    'bool': {
+        'attr_type': bool,
+        'attr_data': 'true', 'attr_result': True
+    },
     'str': {
         'attr_type': str,
         'attr_data': '"data"', 'attr_result': 'data'
@@ -308,3 +320,40 @@ class TransmutingJsonContent(Spec):
 
         expect(result.nope.test).to.equal(1)
         expect(result.nope.test).to.be_an_instance_of(int)
+
+    def transmute_from_with_missing_required_attr_raises(self):
+        expect(
+            JsonTransmuter.transmute_from,
+            [
+                '{"test": 1}',
+                TestRequiredMappedModel
+            ]
+        ).to.raise_a(RequiredAttributeError)
+
+    def transmute_from_with_all_required_attrs(self):
+        result = JsonTransmuter.transmute_from(
+            '{"test": 1, "other": 2}',
+            TestRequiredMappedModel,
+        )
+
+        expect(result.test).to.equal(1)
+        expect(result.other).to.equal(2)
+
+    def transmute_to_missing_required_attr_raises(self):
+        model = TestRequiredMappedModel()
+        model.test = 1
+
+        expect(
+            JsonTransmuter.transmute_to,
+            [model]
+        ).to.raise_a(RequiredAttributeError)
+
+    def transmute_to_with_all_required_attrs(self):
+        model = TestRequiredMappedModel()
+        model.test = 1
+        model.other = 2
+
+        result = JsonTransmuter.transmute_to(model, to_string=False)
+
+        expect(result['test']).to.equal(1)
+        expect(result['other']).to.equal(2)
