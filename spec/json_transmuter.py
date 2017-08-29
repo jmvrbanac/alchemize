@@ -327,6 +327,20 @@ class TransmutingJsonContent(Spec):
         expect(result.nope.test).to.equal(1)
         expect(result.nope.test).to.be_an_instance_of(int)
 
+    def transmute_to_can_coerce_a_null_dict_value(self):
+        class IntMappedModel(JsonMappedModel):
+            __mapping__ = {
+                'test': Attr('test', dict)
+            }
+
+        mapping = IntMappedModel()
+        mapping.test = None
+
+        expected_result = '{"test": {}}'
+
+        result = JsonTransmuter.transmute_to(mapping)
+        expect(result).to.equal(expected_result)
+
     def transmute_from_with_missing_required_attr_raises(self):
         expect(
             JsonTransmuter.transmute_from,

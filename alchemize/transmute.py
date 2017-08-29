@@ -152,6 +152,10 @@ class JsonTransmuter(AbstractBaseTransmuter):
                     attr_value = current_value
 
                     if coerce_values:
+                        # If someone attempts to coerce a None to a dict type
+                        if attr.type == dict and not attr_value:
+                            attr_value = {}
+
                         attr_value = attr.type(attr_value)
 
                 if assign_all or attr_value is not None:
