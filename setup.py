@@ -31,6 +31,8 @@ setup(
     packages=find_packages(exclude=['contrib', 'docs', 'spec*']),
     install_requires=requirements,
     package_data={},
-    data_files=[],
+    data_files=[
+        ('', ['LICENSE'])
+    ],
     entry_points={}
 )
