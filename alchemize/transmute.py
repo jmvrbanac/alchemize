@@ -139,13 +139,27 @@ class JsonTransmuter(AbstractBaseTransmuter):
                 current_value = getattr(mapped_model, attr.name)
                 # Convert a single mapped object
                 if cls._check_supported_mapping(attr.type, True):
-                    attr_value = cls.transmute_to(current_value, False)
+                    attr_value = cls.transmute_to(
+                        mapped_model=current_value,
+                        to_string=False,
+                        assign_all=assign_all,
+                        coerce_values=coerce_values,
+                        serialize_all=serialize_all
+                    )
 
                 # Converts lists of mapped objects
                 elif (cls.is_list_of_mapping_types(attr.type)
                       and isinstance(current_value, list)):
-                    attr_value = [cls.transmute_to(child, False)
-                                  for child in current_value]
+                    attr_value = [
+                        cls.transmute_to(
+                            mapped_model=child,
+                            to_string=False,
+                            assign_all=assign_all,
+                            coerce_values=coerce_values,
+                            serialize_all=serialize_all
+                        )
+                        for child in current_value
+                    ]
 
                 # Converts all other objects (if possible)
                 elif attr.type in NON_CONVERSION_TYPES:
