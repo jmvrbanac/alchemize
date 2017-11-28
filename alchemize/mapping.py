@@ -22,12 +22,15 @@ class Attr(object):
     :param type: Attribute type (e.g str, int, dict, etc)
     :param serialize: Determines if the attribute can be serialized
     :param required: Forces attribute to be defined
+    :param coerce: Forces attribute to be coerced to its type (primitive types)
     """
-    def __init__(self, attr_name, attr_type, serialize=True, required=False):
+    def __init__(self, attr_name, attr_type, serialize=True, required=False,
+                 coerce=None):
         self.name = attr_name
         self.type = attr_type
         self.serialize = serialize
         self.required = required
+        self.coerce = coerce
 
 
 class BaseMappedModel(object):

@@ -223,6 +223,20 @@ class TransmutingJsonContent(Spec):
             result = JsonTransmuter.transmute_to(mapping)
             expect(result).to.equal(expected_result)
 
+    def transmute_to_coercion_can_be_overriden_per_attr(self):
+        class IntMappedModel(JsonMappedModel):
+            __mapping__ = {
+                'test': Attr('test', int, coerce=True)
+            }
+
+        mapping = IntMappedModel()
+        mapping.test = '1'
+
+        expected_result = '{"test": 1}'
+
+        result = JsonTransmuter.transmute_to(mapping, coerce_values=False)
+        expect(result).to.equal(expected_result)
+
     def transmute_to_with_old_attr_style(self):
         class OldStyleMappedModel(JsonMappedModel):
             __mapping__ = {
@@ -305,6 +319,21 @@ class TransmutingJsonContent(Spec):
 
         expect(result.test).to.equal(1)
         expect(result.test).to.be_an_instance_of(int)
+
+    def transmute_from_coercion_can_be_overriden_per_attr(self):
+        class TestMappedModel(JsonMappedModel):
+            __mapping__ = {
+                'test': Attr('test', int, coerce=False),
+            }
+
+        test_json = '{"test": "1"}'
+        result = JsonTransmuter.transmute_from(
+            test_json,
+            TestMappedModel,
+            coerce_values=True
+        )
+
+        expect(result.test).to.equal('1')
 
     def transmute_from_can_coerce_nested(self):
         class SubMappedModel(JsonMappedModel):

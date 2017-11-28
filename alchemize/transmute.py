@@ -164,8 +164,12 @@ class JsonTransmuter(AbstractBaseTransmuter):
                 # Converts all other objects (if possible)
                 elif attr.type in NON_CONVERSION_TYPES:
                     attr_value = current_value
+                    should_coerce = coerce_values
 
-                    if coerce_values:
+                    if attr.coerce is not None:
+                        should_coerce = attr.coerce
+
+                    if should_coerce:
                         # If someone attempts to coerce a None to a dict type
                         if attr.type == dict and not attr_value:
                             attr_value = {}
@@ -232,8 +236,12 @@ class JsonTransmuter(AbstractBaseTransmuter):
             # Converts all other objects (if possible)
             elif attr.type in NON_CONVERSION_TYPES:
                 attr_value = val
+                should_coerce = coerce_values
 
-                if coerce_values:
+                if attr.coerce is not None:
+                    should_coerce = attr.coerce
+
+                if should_coerce:
                     attr_value = attr.type(attr_value)
 
             # Add mapped value to the new mapped_obj is possible
