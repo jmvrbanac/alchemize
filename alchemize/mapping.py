@@ -33,6 +33,28 @@ class Attr(object):
         self.coerce = coerce
 
 
+class ExpandedType(object):
+    """Custom Expanded Type Definition (Unstable Feature)"""
+    cls = None
+
+    @classmethod
+    def check_type(cls, inst):
+        if issubclass(type(inst), type):
+            return issubclass(inst, cls.cls)
+        else:
+            return isinstance(inst, cls.cls)
+
+    @classmethod
+    def serialize(cls, value):
+        """Serialization implementation for the type."""
+        pass
+
+    @classmethod
+    def deserialize(cls, attr_type, value):
+        """Deserialization implementation for the type."""
+        pass
+
+
 class BaseMappedModel(object):
     __wrapped_attr_name__ = None
     __mapping__ = {}
