@@ -17,7 +17,7 @@ import json
 import six
 from abc import ABCMeta, abstractmethod
 
-from alchemize.mapping import JsonMappedModel, get_normalized_map
+from alchemize.mapping import ExpandedType, JsonMappedModel, get_normalized_map
 
 
 NON_CONVERSION_TYPES = [
@@ -31,6 +31,37 @@ NON_CONVERSION_TYPES = [
     six.integer_types,
     six.string_types
 ]
+
+EXPANDED_TYPES = []
+
+
+def register_type(custom_type):
+    """Adds a custom expanded type (unstable feature)."""
+    EXPANDED_TYPES.append(custom_type)
+
+
+def remove_type(custom_type):
+    """Removes a custom expanded type (unstable feature)."""
+    EXPANDED_TYPES.remove(custom_type)
+
+
+try:
+    import enum
+
+    class EnumType(ExpandedType):
+        cls = enum.Enum
+
+        @classmethod
+        def serialize(cls, value):
+            return value.value
+
+        @classmethod
+        def deserialize(cls, attr_type, value):
+            return attr_type(value)
+
+    register_type(EnumType)
+except ImportError:  # pragma: no cover
+    pass
 
 
 class AlchemizeError(Exception):
@@ -176,6 +207,19 @@ class JsonTransmuter(AbstractBaseTransmuter):
 
                         attr_value = attr.type(attr_value)
 
+                # Support Expanded Types
+                else:
+                    find_exp_type = (
+                        item
+                        for item in EXPANDED_TYPES
+                        if item.check_type(current_value)
+                    )
+
+                    item = next(find_exp_type, None)
+
+                    if item:
+                        attr_value = item.serialize(current_value)
+
                 if assign_all or attr_value is not None:
                     result[name] = attr_value
 
@@ -243,6 +287,19 @@ class JsonTransmuter(AbstractBaseTransmuter):
 
                 if should_coerce:
                     attr_value = attr.type(attr_value)
+
+            # Support Expanded Types
+            else:
+                find_exp_type = (
+                    item
+                    for item in EXPANDED_TYPES
+                    if item.check_type(attr.type)
+                )
+
+                item = next(find_exp_type, None)
+
+                if item:
+                    attr_value = item.deserialize(attr.type, val)
 
             # Add mapped value to the new mapped_obj is possible
             setattr(mapped_obj, attr.name, attr_value)

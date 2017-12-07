@@ -2,7 +2,9 @@ import json
 import six
 
 from specter import Spec, DataSpec, expect, require
-from alchemize import JsonTransmuter, JsonMappedModel, Attr
+
+import alchemize
+from alchemize import ExpandedType, JsonTransmuter, JsonMappedModel, Attr
 from alchemize.transmute import RequiredAttributeError
 
 
@@ -256,6 +258,106 @@ class TransmutingJsonContent(Spec):
             OldStyleMappedModel
         )
         expect(result.test).to.equal(1)
+
+    if six.PY3:
+        def transmute_to_and_from_supports_enums(self):
+            import enum
+
+            class TestEnum(enum.Enum):
+                RED = 1
+                GREEN = 2
+                BLUE = 3
+
+            class OtherEnum(enum.Enum):
+                BLUE = 1
+                GREEN = 2
+                RED = 3
+
+            class EnumMappedModel(JsonMappedModel):
+                __mapping__ = {
+                    'test': Attr('test', TestEnum),
+                    'other': Attr('other', OtherEnum),
+                }
+
+            mapping = EnumMappedModel()
+            mapping.test = TestEnum.RED
+            mapping.other = OtherEnum.RED
+
+            serialized = '{"test": 1, "other": 3}'
+
+            result = JsonTransmuter.transmute_to(mapping)
+
+            res_dict = json.loads(result)
+            expect(res_dict.get('test')).to.equal(1)
+            expect(res_dict.get('other')).to.equal(3)
+
+            result = JsonTransmuter.transmute_from(serialized, EnumMappedModel)
+            expect(result.test).to.equal(TestEnum.RED)
+            expect(result.other).to.equal(OtherEnum.RED)
+
+    def transmute_to_and_from_with_expanded_type(self):
+        class CustomType(object):
+            def __init__(self, something):
+                self.something = something
+
+        class CustomDefinition(ExpandedType):
+            cls = CustomType
+
+            @classmethod
+            def serialize(self, value):
+                return {
+                    'something': value.something
+                }
+
+            @classmethod
+            def deserialize(self, attr_type, value):
+                return attr_type(**value)
+
+        class TestMappedModel(JsonMappedModel):
+            __mapping__ = {
+                'test': Attr('test', CustomType),
+            }
+
+        model = TestMappedModel()
+        model.test = CustomType('thing')
+
+        serialized = '{"test": {"something": "thing"}}'
+
+        alchemize.register_type(CustomDefinition)
+
+        result = JsonTransmuter.transmute_to(model)
+        expect(result).to.equal(serialized)
+
+        result = JsonTransmuter.transmute_from(serialized, TestMappedModel)
+        expect(result.test.something).to.equal('thing')
+
+        alchemize.remove_type(CustomDefinition)
+
+    def transmute_to_and_from_with_unknown_type(self):
+        class CustomType(object):
+            def __init__(self, something):
+                self.something = something
+
+        class TestMappedModel(JsonMappedModel):
+            __mapping__ = {
+                'test': Attr('test', CustomType),
+            }
+
+        model = TestMappedModel()
+        model.test = CustomType('thing')
+
+        serialized = '{}'
+
+        result = JsonTransmuter.transmute_to(model)
+        expect(result).to.equal(serialized)
+
+        result = JsonTransmuter.transmute_from(
+            '{"test": {"something": "thing"}}',
+            TestMappedModel
+        )
+
+        attr = getattr(result, 'test', None)
+        expect(attr).to.be_none()
 
     def transmute_to_and_from_with_wrapped_attr_name(self):
         mapping = TestWrappedModel()

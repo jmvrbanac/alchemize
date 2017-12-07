@@ -33,3 +33,10 @@ Exceptions
 .. autoclass:: alchemize.transmute.RequiredAttributeError
 
 .. autoclass:: alchemize.transmute.UnsupportedMappedModelError
+
+
+Custom Types
+------------
+
+.. autoclass:: alchemize.ExpandedType
+    :members:
