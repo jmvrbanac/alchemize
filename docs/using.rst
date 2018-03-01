@@ -154,8 +154,8 @@ This is done by setting the ``serialize=False`` argument on your ``Attr``.
     class User(JsonMappedModel):
         __mapping__ = {
             'name': Attr('name', str),
-            'email': Attr('email', str)
-            'password': Attr('password', str, serialize=False)
+            'email': Attr('email', str),
+            'password': Attr('password', str, serialize=False),
         }
 
 .. note::
@@ -192,5 +192,34 @@ This option allows for parsing this JSON into the following single model
         __wrapped_attr_name__ = '#item'
         __mapping__ = {
             'name': Attr('name', str),
-            'email': Attr('email', str)
+            'email': Attr('email', str),
         }
+
+Simple Helper Usage
+-------------------
+
+If you don't really care about a custom serialization implementation or hook-in
+you can use the basic helper models which handle will transmute to/from on
+their own.
+
+
+.. code-block:: python
+
+    from alchemize import JsonModel, Attr
+
+
+    class User(JsonModel):
+        __mapping__ = {
+            'name': Attr('name', str),
+            'email': Attr('email', str),
+            'password': Attr('password', str, serialize=False),
+        }
+
+
+    model = User.from_dict({
+        'name': 'thing',
+        'email': 'thing@thing.corp',
+        'password': 'my-password',
+    })
+
+    json_dict = model.as_dict()

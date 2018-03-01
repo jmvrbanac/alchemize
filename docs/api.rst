@@ -24,6 +24,16 @@ Mapped Models
 
 .. autofunction:: alchemize.mapping.get_normalized_map
 
+Helpers
+----------------
+
+.. autoclass:: alchemize.JsonModel
+    :members:
+
+.. autoclass:: alchemize.JsonListModel
+    :members:
+    :inherited-members:
+
 
 Exceptions
 ------------
