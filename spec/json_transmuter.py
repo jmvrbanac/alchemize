@@ -406,6 +406,37 @@ class TransmutingJsonContent(Spec):
         expect(result.test).to.equal(100)
         expect(result.another).to.equal(200)
 
+    def transmute_to_and_from_with_custom_serializer(self):
+        mapping = TestWrappedModel()
+        mapping.test = "bam"
+
+        json_str = '{"#item": {"test": "bam"}}'
+
+        class Custom(object):
+            @classmethod
+            def dumps(cls, value):
+                value['#item']['test'] = 'allthethings'
+                return json.dumps(value)
+
+            @classmethod
+            def loads(cls, value):
+                loaded = json.loads(json_str)
+                loaded['#item']['test'] = 'magic'
+                return loaded
+
+        result = JsonTransmuter.transmute_to(
+            mapping,
+            encoder=Custom
+        )
+        expect(result).to.equal('{"#item": {"test": "allthethings"}}')
+
+        result = JsonTransmuter.transmute_from(
+            json_str,
+            TestWrappedModel,
+            decoder=Custom
+        )
+        expect(result.test).to.equal('magic')
+
     def transmute_from_can_coerce_types(self):
         class TestMappedModel(JsonMappedModel):
             __mapping__ = {

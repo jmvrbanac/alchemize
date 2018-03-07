@@ -141,7 +141,8 @@ class JsonTransmuter(AbstractBaseTransmuter):
 
     @classmethod
     def transmute_to(cls, mapped_model, to_string=True, assign_all=False,
-                     coerce_values=True, serialize_all=False):
+                     coerce_values=True, serialize_all=False, encoder=None,
+                     encoder_kwargs=None):
         """Converts a model based off of a JsonMappedModel into JSON.
 
         :param mapped_model: An instance of a subclass of JsonMappedModel.
@@ -153,11 +154,16 @@ class JsonTransmuter(AbstractBaseTransmuter):
             types to be coerced with their mapped type.
         :param serialize_all: Boolean value that allows for you to force
             serialization of values regardless of the attribute settings.
+        :param encoder: module that implements dumps(...).
+        :param encoder_kwargs: A dictionary containing kwargs to be used
+            with the encoder.
         :returns: A string or dictionary containing the JSON form of your
             mapped model.
         """
         super(JsonTransmuter, cls).transmute_to(mapped_model)
         result = {}
+        encoder = encoder or json
+        encoder_kwargs = encoder_kwargs or {}
 
         for name, attr in get_normalized_map(mapped_model).items():
             attr_value = None
@@ -230,23 +236,29 @@ class JsonTransmuter(AbstractBaseTransmuter):
         if mapped_model.__wrapped_attr_name__:
             result = {mapped_model.__wrapped_attr_name__: result}
 
-        return json.dumps(result) if to_string else result
+        return encoder.dumps(result, **encoder_kwargs) if to_string else result
 
     @classmethod
-    def transmute_from(cls, data, mapped_model_type, coerce_values=False):
+    def transmute_from(cls, data, mapped_model_type, coerce_values=False,
+                       decoder=None, decoder_kwargs=None):
         """Converts a JSON string or dict into a corresponding Mapping Object.
 
         :param data: JSON data in string or dictionary form.
         :param mapped_model_type: A type that extends the JsonMappedModel base.
         :param coerce_values: Boolean value to allow for values with python
             types to be coerced with their mapped type.
+        :param decoder: A module that implements loads(...).
+        :param decoder_kwargs: A dictionary containing kwargs to use
+            with the decoder.
         :returns: An instance of your mapped model type.
         """
         super(JsonTransmuter, cls).transmute_from(data, mapped_model_type)
+        decoder = decoder or json
+        decoder_kwargs = decoder_kwargs or {}
 
         json_dict = data
         if isinstance(data, six.string_types):
-            json_dict = json.loads(data)
+            json_dict = decoder.loads(data, **decoder_kwargs)
 
         mapped_obj = mapped_model_type()
 
