@@ -8,7 +8,7 @@ with open('README.rst') as f:
 
 setup(
     name='alchemize',
-    version='0.11.0',
+    version='0.11.1',
     description=('A simple library that allows for serialization and '
                  'deserialization of models via mapping definitions'),
     long_description=(desc),
