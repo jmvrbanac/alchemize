@@ -181,7 +181,9 @@ class JsonTransmuter(AbstractBaseTransmuter):
                         to_string=False,
                         assign_all=assign_all,
                         coerce_values=coerce_values,
-                        serialize_all=serialize_all
+                        serialize_all=serialize_all,
+                        encoder=encoder,
+                        encoder_kwargs=encoder_kwargs
                     )
 
                 # Converts lists of mapped objects
@@ -193,7 +195,9 @@ class JsonTransmuter(AbstractBaseTransmuter):
                             to_string=False,
                             assign_all=assign_all,
                             coerce_values=coerce_values,
-                            serialize_all=serialize_all
+                            serialize_all=serialize_all,
+                            encoder=encoder,
+                            encoder_kwargs=encoder_kwargs
                         )
                         for child in current_value
                     ]
@@ -279,13 +283,25 @@ class JsonTransmuter(AbstractBaseTransmuter):
 
             # Convert a single mapped object
             if cls._check_supported_mapping(attr.type, True):
-                attr_value = cls.transmute_from(val, attr.type, coerce_values)
+                attr_value = cls.transmute_from(
+                    val,
+                    attr.type,
+                    coerce_values=coerce_values,
+                    decoder=decoder,
+                    decoder_kwargs=decoder_kwargs
+                )
 
             # Converts lists of mapped objects
             elif (cls.is_list_of_mapping_types(attr.type)
                   and isinstance(val, list)):
                 attr_value = [
-                    cls.transmute_from(child, attr.type[0], coerce_values)
+                    cls.transmute_from(
+                        child,
+                        attr.type[0],
+                        coerce_values=coerce_values,
+                        decoder=decoder,
+                        decoder_kwargs=decoder_kwargs
+                    )
                     for child in val
                 ]
 
