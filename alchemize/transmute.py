@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import json
+import uuid
 import six
 from abc import ABCMeta, abstractmethod
 
@@ -62,6 +63,21 @@ try:
     register_type(EnumType)
 except ImportError:  # pragma: no cover
     pass
+
+
+class UUIDType(ExpandedType):
+    cls = uuid.UUID
+
+    @classmethod
+    def serialize(cls, value):
+        return str(value)
+
+    @classmethod
+    def deserialize(cls, attr_type, value):
+        return attr_type(value)
+
+
+register_type(UUIDType)
 
 
 class AlchemizeError(Exception):
