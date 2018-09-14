@@ -9,12 +9,13 @@ class JsonModel(JsonMappedModel):
         return JsonTransmuter.transmute_from(data, cls, **options)
 
     def transmute_to(self, to_string=False, serialize_all=False,
-                     coerce_values=False):
+                     coerce_values=False, **options):
         return JsonTransmuter.transmute_to(
             self,
             to_string=to_string,
             coerce_values=coerce_values,
             serialize_all=serialize_all,
+            **options
         )
 
     def as_json(self, serialize_all=False):
