@@ -223,3 +223,6 @@ their own.
     })
 
     json_dict = model.as_dict()
+
+    # You can also set attributes on instance creation
+    model = User(name='thing', email='thing@thing.corp')

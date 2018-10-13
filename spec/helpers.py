@@ -51,6 +51,10 @@ class TestJsonHelperModel(Spec):
 
         expect(model.thing).to.equal('other')
 
+    def can_set_attrs_in_constructor(self):
+        model = TestModel(thing='bam')
+        expect(model.thing).to.equal('bam')
+
 
 class TestJsonHelperListModel(Spec):
     if six.PY3:

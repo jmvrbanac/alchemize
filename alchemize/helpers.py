@@ -4,6 +4,12 @@ from alchemize import JsonMappedModel, JsonTransmuter
 class JsonModel(JsonMappedModel):
     """Model helper that is designed to provide common usage methods."""
 
+    def __init__(self, **attrs):
+        super(JsonModel, self).__init__()
+
+        if attrs:
+            self.update(**attrs)
+
     @classmethod
     def transmute_from(cls, data, **options):
         return JsonTransmuter.transmute_from(data, cls, **options)
@@ -61,8 +67,9 @@ class JsonListModel(JsonModel):
 
     """
 
-    def __init__(self):
+    def __init__(self, **attrs):
         self.collection = []
+        super(JsonListModel, self).__init__(**attrs)
 
     def __iter__(self):
         """Iterates the collection."""
