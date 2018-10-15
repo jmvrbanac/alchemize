@@ -631,3 +631,11 @@ class TransmutingJsonContent(Spec):
         result = JsonTransmuter.transmute_from(test_json, TestMappedModel)
 
         expect(result.test).to.equal('')
+
+    def transmute_to_with_empty_submodel(self):
+        model = TestChildMapping()
+        model.child = None
+
+        result = JsonTransmuter.transmute_to(model, to_string=False)
+
+        expect(result.get('child')).to.be_none()

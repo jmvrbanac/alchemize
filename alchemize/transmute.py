@@ -181,6 +181,9 @@ class JsonTransmuter(AbstractBaseTransmuter):
         encoder = encoder or json
         encoder_kwargs = encoder_kwargs or {}
 
+        if not mapped_model:
+            return None
+
         for name, attr in get_normalized_map(mapped_model).items():
             attr_value = None
 
