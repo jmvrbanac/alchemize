@@ -101,6 +101,9 @@ def get_normalized_map(model):
     """Normalizes mapping data to support backward compatibility."""
     key_map = {}
 
+    if not model:
+        return key_map
+
     for key, map_obj in model.__get_full_mapping__().items():
         if not isinstance(map_obj, Attr):
             key_map[key] = Attr(map_obj[0], map_obj[1])

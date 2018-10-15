@@ -1,6 +1,6 @@
 from specter import Spec, expect
 from alchemize import Attr, JsonMappedModel
-from alchemize.mapping import get_key_paths
+from alchemize.mapping import get_key_paths, get_normalized_map
 
 
 class TestModel(JsonMappedModel):
@@ -26,3 +26,7 @@ class TestMapping(Spec):
         expect('/model/thing').to.be_in(key_list)
         expect('/model/old_style').to.be_in(key_list)
         expect('/model_list/thing').to.be_in(key_list)
+
+    def can_have_handle_model_being_none(self):
+        ret = get_normalized_map(None)
+        expect(ret).to.equal({})
