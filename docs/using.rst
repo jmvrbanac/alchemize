@@ -213,6 +213,7 @@ their own.
             'name': Attr('name', str),
             'email': Attr('email', str),
             'password': Attr('password', str, serialize=False),
+            'accounts': Attr('accounts', [str]),
         }
 
 
@@ -220,6 +221,7 @@ their own.
         'name': 'thing',
         'email': 'thing@thing.corp',
         'password': 'my-password',
+        'accounts': ['thing1', 'thing2'],
     })
 
     json_dict = model.as_dict()

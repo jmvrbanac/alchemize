@@ -19,7 +19,7 @@ class Attr(object):
     """ Attribute Definition
 
     :param name: Python attribute name
-    :param type: Attribute type (e.g str, int, dict, etc)
+    :param type: Attribute type (e.g str, int, dict, Model, [<type>], etc)
     :param serialize: Determines if the attribute can be serialized
     :param required: Forces attribute to be defined
     :param coerce: Forces attribute to be coerced to its type (primitive types)
