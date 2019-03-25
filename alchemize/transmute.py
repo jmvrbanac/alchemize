@@ -115,8 +115,10 @@ class AbstractBaseTransmuter(object):
         if not isinstance(mapped_model, type):
             return False
 
-        results = [issubclass(mapped_model, map_type)
-                   for map_type in cls.__supported_base_mappings__]
+        results = [
+            issubclass(mapped_model, map_type)
+            for map_type in cls.__supported_base_mappings__
+        ]
 
         if not ignore_failure and False in results:
             raise UnsupportedMappedModelError()
@@ -147,9 +149,49 @@ class AbstractBaseTransmuter(object):
     @classmethod
     def is_list_of_mapping_types(cls, attr_type):
         if isinstance(attr_type, list) and len(attr_type) == 1:
-            if cls._check_supported_mapping(attr_type[0]):
+            if cls._check_supported_mapping(attr_type[0], ignore_failure=True):
                 return True
+
         return False
+
+    @classmethod
+    def is_list_of_other_types(cls, attr):
+        if not isinstance(attr.type, list):
+            return False
+
+        if cls.get_expanded_type(attr.type[0]):
+            return True
+
+        elif attr.type[0] in NON_CONVERSION_TYPES:
+            return True
+
+        return False
+
+    @classmethod
+    def get_expanded_type(cls, current_value):
+        find_exp_type = (
+            item
+            for item in EXPANDED_TYPES
+            if item.check_type(current_value)
+        )
+
+        return next(find_exp_type, None)
+
+    @classmethod
+    def convert_standard_types(cls, attr, current_value, coerce_values):
+        attr_value = current_value
+        should_coerce = coerce_values
+        attr_type = attr.type[0] if isinstance(attr.type, list) else attr.type
+
+        if attr.coerce is not None:
+            should_coerce = attr.coerce
+
+        if should_coerce:
+            # If someone attempts to coerce a None to a dict type
+            if attr_type == dict and not attr_value:
+                attr_value = {}
+
+        return attr_type(attr_value)
 
 
 class JsonTransmuter(AbstractBaseTransmuter):
@@ -235,6 +277,21 @@ class JsonTransmuter(AbstractBaseTransmuter):
                             attr_value = {}
 
                         attr_value = attr.type(attr_value)
+                # Convert lists of other objects (if possible)
+                elif cls.is_list_of_other_types(attr):
+                    attr_type = attr.type[0]
+                    if attr_type in NON_CONVERSION_TYPES:
+                        attr_value = [
+                            cls.convert_standard_types(attr, item, coerce_values)
+                            for item in current_value
+                        ]
+                    else:
+                        item_type = cls.get_expanded_type(attr_type)
+                        if item_type:
+                            attr_value = [
+                                item_type.serialize(item)
+                                for item in current_value
+                            ]
 
                 # Support Expanded Types
                 else:
@@ -334,6 +391,22 @@ class JsonTransmuter(AbstractBaseTransmuter):
 
                 if should_coerce:
                     attr_value = attr.type(attr_value)
+
+            # Convert lists of other objects (if possible)
+            elif cls.is_list_of_other_types(attr):
+                attr_type = attr.type[0]
+                if attr_type in NON_CONVERSION_TYPES:
+                    attr_value = [
+                        cls.convert_standard_types(attr, item, coerce_values)
+                        for item in val
+                    ]
+                else:
+                    item_type = cls.get_expanded_type(attr_type)
+                    if item_type:
+                        attr_value = [
+                            item_type.deserialize(attr_type, item)
+                            for item in val
+                        ]
 
             # Support Expanded Types
             else:

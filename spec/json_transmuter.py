@@ -316,6 +316,45 @@ class TransmutingJsonContent(Spec):
         result = JsonTransmuter.transmute_from(serialized, UUIDMappedModel)
         expect(result.test).to.equal(zeroed_uuid)
 
+    def transmute_to_and_from_supports_a_list_of_uuids(self):
+        class UUIDMappedModel(JsonMappedModel):
+            __mapping__ = {
+                'test': Attr('test', [uuid.UUID]),
+            }
+
+        zeroed_uuid = uuid.UUID(int=0)
+        mapping = UUIDMappedModel()
+        mapping.test = [zeroed_uuid]
+
+        serialized = '{"test": ["' + str(zeroed_uuid) + '"]}'
+
+        result = JsonTransmuter.transmute_to(mapping)
+
+        res_dict = json.loads(result)
+        expect(res_dict.get('test')).to.equal([str(zeroed_uuid)])
+
+        result = JsonTransmuter.transmute_from(serialized, UUIDMappedModel)
+        expect(result.test).to.equal([zeroed_uuid])
+
+    def transmute_to_and_from_supports_a_list_of_strs(self):
+        class StrMappedModel(JsonMappedModel):
+            __mapping__ = {
+                'test': Attr('test', [str]),
+            }
+
+        mapping = StrMappedModel()
+        mapping.test = ['tester']
+
+        serialized = '{"test": ["tester"]}'
+
+        result = JsonTransmuter.transmute_to(mapping)
+
+        res_dict = json.loads(result)
+        expect(res_dict.get('test')).to.equal(["tester"])
+
+        result = JsonTransmuter.transmute_from(serialized, StrMappedModel)
+        expect(result.test).to.equal(["tester"])
+
     def transmute_to_and_from_with_expanded_type(self):
         class CustomType(object):
             def __init__(self, something):
