@@ -191,7 +191,9 @@ class AbstractBaseTransmuter(object):
             if attr_type == dict and not attr_value:
                 attr_value = {}
 
-        return attr_type(attr_value)
+            return attr_type(attr_value)
+
+        return attr_value
 
 
 class JsonTransmuter(AbstractBaseTransmuter):
@@ -265,24 +267,22 @@ class JsonTransmuter(AbstractBaseTransmuter):
 
                 # Converts all other objects (if possible)
                 elif attr.type in NON_CONVERSION_TYPES:
-                    attr_value = current_value
-                    should_coerce = coerce_values
+                    attr_value = cls.convert_standard_types(
+                        attr,
+                        current_value,
+                        coerce_values
+                    )
 
-                    if attr.coerce is not None:
-                        should_coerce = attr.coerce
-
-                    if should_coerce:
-                        # If someone attempts to coerce a None to a dict type
-                        if attr.type == dict and not attr_value:
-                            attr_value = {}
-
-                        attr_value = attr.type(attr_value)
                 # Convert lists of other objects (if possible)
                 elif cls.is_list_of_other_types(attr):
                     attr_type = attr.type[0]
                     if attr_type in NON_CONVERSION_TYPES:
                         attr_value = [
-                            cls.convert_standard_types(attr, item, coerce_values)
+                            cls.convert_standard_types(
+                                attr,
+                                item,
+                                coerce_values
+                            )
                             for item in current_value
                         ]
                     else:
@@ -295,13 +295,7 @@ class JsonTransmuter(AbstractBaseTransmuter):
 
                 # Support Expanded Types
                 else:
-                    find_exp_type = (
-                        item
-                        for item in EXPANDED_TYPES
-                        if item.check_type(current_value)
-                    )
-
-                    item = next(find_exp_type, None)
+                    item = cls.get_expanded_type(current_value)
 
                     if item:
                         attr_value = item.serialize(current_value)
@@ -383,14 +377,11 @@ class JsonTransmuter(AbstractBaseTransmuter):
 
             # Converts all other objects (if possible)
             elif attr.type in NON_CONVERSION_TYPES:
-                attr_value = val
-                should_coerce = coerce_values
-
-                if attr.coerce is not None:
-                    should_coerce = attr.coerce
-
-                if should_coerce:
-                    attr_value = attr.type(attr_value)
+                attr_value = cls.convert_standard_types(
+                    attr,
+                    val,
+                    coerce_values
+                )
 
             # Convert lists of other objects (if possible)
             elif cls.is_list_of_other_types(attr):
@@ -410,13 +401,7 @@ class JsonTransmuter(AbstractBaseTransmuter):
 
             # Support Expanded Types
             else:
-                find_exp_type = (
-                    item
-                    for item in EXPANDED_TYPES
-                    if item.check_type(attr.type)
-                )
-
-                item = next(find_exp_type, None)
+                item = cls.get_expanded_type(attr.type)
 
                 if item:
                     attr_value = item.deserialize(attr.type, val)
