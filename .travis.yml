@@ -18,7 +18,7 @@ matrix:
     env: TOXENV=py37
   - python: 3.8-dev
     env: TOXENV=py38
-  - python: pypy2.7-5.8.0
+  - python: pypy3
     env: TOXENV=pypy
 
 install:
